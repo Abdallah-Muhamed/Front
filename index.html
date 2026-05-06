@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>صفحة متجر</title>
+
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/all.css">
+  <style>
+    .password-strength { margin: 6px 0 12px; }
+    .strength-track { height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+    .strength-fill  { height: 100%; width: 0%; border-radius: 4px; transition: width .35s ease, background .35s ease; }
+    .strength-label { font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
+    .confirm-msg    { font-size: 12px; font-weight: 600; display: block; margin-top: 4px; }
+
+    /* Role picker */
+    .role-picker { display: flex; gap: 12px; margin-bottom: 4px; }
+    .role-picker input[type="radio"] { display: none; }
+    .role-card {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 10px; border: 2px solid #e2e8f0; border-radius: 12px;
+      cursor: pointer; transition: border-color .2s, background .2s, transform .15s;
+      background: #f8fafc; user-select: none;
+    }
+    .role-card:hover { border-color: #68d391; background: #f0fff4; transform: translateY(-2px); }
+    .role-icon { font-size: 28px; line-height: 1; }
+    .role-name { font-size: 14px; font-weight: 700; color: #2d3748; }
+    .role-picker input[type="radio"]:checked + .role-card {
+      border-color: #38a169; background: #f0fff4;
+      box-shadow: 0 0 0 3px rgba(56,161,105,.2);
+    }
+
+
+
+    /* Avatar upload in register */
+    .avatar-upload { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .avatar-preview {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: #f0fff4; border: 3px dashed #68d391;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; cursor: pointer; transition: border-color .2s;
+    }
+    .avatar-preview:hover { border-color: #38a169; }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-placeholder { font-size: 28px; }
+    .avatar-upload-btn {
+      background: #f0fff4; color: #276749; border: 1.5px solid #38a169;
+      border-radius: 8px; padding: 6px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .avatar-upload-btn:hover { background: #c6f6d5; }
+    .avatar-hint { font-size: 11px; color: #999; }
+    /* Location detect bar */
+    .location-detect { display:flex; align-items:center; gap:8px; margin-bottom:12px; padding:10px 12px; background:#f0fff4; border:1.5px solid #68d391; border-radius:10px; }
+    .location-detect-btn { background:none; border:none; cursor:pointer; font-size:13px; font-weight:700; color:#276749; white-space:nowrap; padding:0; display:flex; align-items:center; gap:4px; }
+    .location-detect-btn:hover { color:#38a169; }
+    #locationStatus { font-size:12px; color:#718096; flex:1; }
+
+    /* User avatar in navbar */
+    .user-area { display: flex; align-items: center; gap: 8px; }
+    .user-avatar-wrap { position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+    .user-initials-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #38a169, #276749);
+      color: #fff; font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: default; user-select: none;
+    }
+    .user-avatar-img {
+      width: 36px; height: 36px; border-radius: 50%;
+      object-fit: cover; position: absolute; inset: 0;
+    }
+    /* Navbar fix */
+    .topbar__inner { display: flex; align-items: center; gap: 16px; flex-wrap: nowrap; }
+    .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .auth-buttons { display: flex; align-items: center; gap: 8px; }
+    .auth-buttons .btn { height: 38px; padding: 0 18px; font-size: 14px; white-space: nowrap; }
+    .cart-btn { display: flex; align-items: center; gap: 4px; height: 38px; padding: 0 12px;
+      border-radius: 8px; font-size: 20px; background: transparent; border: none; cursor: pointer;
+      position: relative; }
+    .cart-badge { font-size: 12px; font-weight: 700; background: #38a169; color: #fff;
+      border-radius: 999px; padding: 1px 6px; }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div class="brand">
+        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="#" width="220" height="80"></a></div>
+        <div class="brand__text">
+          <div class="brand__name">الخضار</div>
+          <div class="brand__sub">من المزرعة</div>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="searchInput" placeholder="ابحث عن منتج..." />
+      </div>
+
+      <nav class="actions">
+        <!-- افتراضيًا يظهر Login/Register -->
+        <div id="authButtons" class="auth-buttons">
+          <button class="btn btn--ghost" id="btnLoginOpen">login</button>
+          <button class="btn btn--primary" id="btnRegisterOpen">register</button>
+        </div>
+
+        <!-- بعد تسجيل الدخول -->
+        <div id="userArea" class="user-area" hidden style="display:none;">
+          <div class="user-avatar-wrap">
+            <div class="user-initials-circle" id="userInitials">م</div>
+            <img id="userAvatar" class="user-avatar-img" src="" alt="avatar" hidden />
+          </div>
+          <button class="btn btn--ghost user-name" id="btnUser">
+            مرحبًا <span id="userDisplayName"></span>
+          </button>
+          <button class="btn btn--danger" id="btnLogout">خروج</button>
+        </div>
+
+        <button class="cart-btn" id="btnOpenCart" aria-label="فتح السلة">
+          🛍️ <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main>
+    <section class="hero">
+      <div class="container hero__grid">
+        <div class="hero__image">
+          <div class="hero__imgBox">
+            <img alt="خضار" src="images/main-img.png" />
+          </div>
+        </div>
+
+        <div class="hero__content">
+          <h1 class="hero__title">سوق محاصيل <span>الزراعة العضوية</span></h1>
+          <p class="hero__desc">
+            اعيش أفضل محاصيل طازجة—اشترِ الآن وخليها توصل لباب بيتك.
+          </p>
+
+          <div class="hero__cta">
+            <button class="btn btn--ghost" id="btnDetails">عرض التفاصيل</button>
+            <button  id="btnShopNow">تسوق المحاصيل</button>
+          </div>
+         <section id="detailsSection" class="detailsSection" hidden>
+  <div class="container">
+    <h2 class="detailsTitle">تفاصيل عن  سوق زرعتك</h2>
+
+    <p class="detailsLead">
+      في <b>سوق محاصيل زرعتك</b> بنقدّم لك منتجات طازجة وعالية الجودة من المزرعة مباشرة—بشكل يضمن إنك تستلم قيمة حقيقية كل مرة.
+    </p>
+
+    <div class="detailsGrid">
+      <div class="detailsCard">
+        <h3>زراعة عضوية وممارسات سليمة</h3>
+        <p>
+          بنركّز على الأساليب العضوية في الزراعة قدر الإمكان، لتكون المنتجات أنضف وأقرب لطبيعتها.
+        </p>
+      </div>
+
+      <div class="detailsCard">
+        <h3>حصاد قريب من وقت الشحن</h3>
+        <p>
+          كل ما كان الحصاد قريب من وقت التجهيز، كل ما كانت النكهة والطراوة أعلى.
+        </p>
+      </div>
+
+      <div class="detailsCard">
+        <h3>اختيار وفرز قبل الإرسال</h3>
+        <p>
+          بنعمل فرز سريع لضمان جودة المنتجات قبل ما توصل لك.
+        </p>
+      </div>
+
+     
+
+      <div class="detailsCard">
+        <h3>دعم المزارعين</h3>
+        <p>
+          التعامل المباشر بيساعد المزارع ويضمن جودة أعلى للمستهلك—ده جزء من فلسفتنا.
+        </p>
+      </div>
+
+      <div class="detailsCard">
+        <h3>خدمة عملاء وتواصل</h3>
+        <p>
+          لو عندك أي استفسار عن المنتج أو الطلب، فريق الدعم موجود لمساعدتك.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+        </div>
+      </div>
+    </section>
+
+    <!-- /////////////////////////////////////////////// -->
+    <section>
+  <div class="section1-category">
+    <div class="category" data-category="حبوب">
+      <div class="category-icons">
+        <img src="images/icon3.jpg" alt="حبوب" width="40" height="40">
+      </div>
+      <p>حبوب</p>
+    </div>
+
+    <div class="category" data-category="فاكهة">
+      <div class="category-icons">
+        <img src="images/icon4.jpg" alt="فواكه" width="40" height="40">
+      </div>
+      <p>فواكه</p>
+    </div>
+
+    <div class="category" data-category="خضروات">
+      <div class="category-icons">
+        <img src="images/icon5.jpg" alt="خضراوات" width="40" height="40">
+      </div>
+      <p>خضراوات</p>
+    </div>
+  </div>
+</section>
+<!-- /////////////////////////////////////////////////// -->
+    <!-- Products -->
+     <div id="toastAdded" class="toast" hidden></div>
+    <section class="section">
+      <div class="container">
+        <div class="section__head">
+            <p class="more-item"><a href="products.html"><i class="fa-solid fa-arrow-left"></i>عرض كل المحاصيل</a></p>
+          <h2>المحاصيل</h2>
+          <p>اختار وكمّل بسهولة…</p>
+        </div>
+
+        <div class="products-grid" id="productsGrid"></div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- Cart Modal -->
+  <div class="modal-backdrop" id="cartBackdrop" hidden></div>
+  <div class="modal" id="cartModal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__header">
+      <h3>سلة المشتريات</h3>
+      <button class="icon-btn" id="btnCloseCart">✖</button>
+    </div>
+
+    <div class="modal__body">
+      <div id="cartItems" class="cart-items"></div>
+
+      <div id="cartEmpty" class="cart-empty" hidden>
+        السلة فاضية. أضف منتجات من الصفحة.
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <div class="cart-total">
+        <span>الإجمالي:</span>
+        <strong id="cartTotalText">0</strong>
+      </div>
+      <button class="btn btn--primary" id="btnCheckout" disabled>إتمام الشراء</button>
+    </div>
+  </div>
+
+ 
+  <!-- Login Modal -->
+<div class="modal-backdrop" id="loginBackdrop" hidden></div>
+<div class="modal modal--auth" id="loginModal" hidden>
+  <div class="modal__header">
+    <h3>تسجيل الدخول</h3>
+    <button class="icon-btn" id="btnCloseLogin">✖</button>
+  </div>
+
+  <div class="modal__body">
+    <div id="loginError" class="auth-error" hidden></div>
+
+    <form id="loginForm" class="auth-form">
+      <label>البريد الإلكتروني</label>
+      <input name="email" required type="email" placeholder="name@example.com" />
+
+      <label>كلمة المرور</label>
+      <input name="password" required type="password" placeholder="••••••••" />
+
+      <button class="btn btn--primary" type="submit">دخول</button>
+    </form>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal-backdrop" id="registerBackdrop" hidden></div>
+<div class="modal modal--auth" id="registerModal" hidden>
+  <div class="modal__header">
+    <h3>إنشاء حساب</h3>
+    <button class="icon-btn" id="btnCloseRegister">✖</button>
+  </div>
+
+  <div class="modal__body">
+    <div id="registerError" class="auth-error" hidden></div>
+
+    <form id="registerForm" class="auth-form">
+
+      <!-- صورة البروفايل (اختيارية) -->
+      <div class="avatar-upload">
+        <div class="avatar-preview" id="avatarPreview">
+          <span class="avatar-placeholder">📷</span>
+        </div>
+        <label class="avatar-upload-btn" for="profilePhotoInput">اختر صورة (اختياري)</label>
+        <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" hidden />
+        <span class="avatar-hint">JPG, PNG — حجم أقصى 5MB</span>
+      </div>
+
+      <!-- الاسم -->
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+          <label>الاسم الأول</label>
+          <input name="first_name" required placeholder="مثال: أحمد" />
+        </div>
+        <div style="flex:1;">
+          <label>الاسم الأخير</label>
+          <input name="last_name" required placeholder="مثال: علي" />
+        </div>
+      </div>
+
+      <label>البريد الإلكتروني</label>
+      <input name="email" required type="email" placeholder="name@example.com" />
+
+      <label>رقم الهاتف</label>
+      <input name="phone" required type="tel" placeholder="مثال: 01012345678" />
+
+      <!-- الموقع — auto-fill من GPS ويمكن تعديله يدوياً -->
+      <div class="location-detect">
+        <button type="button" class="location-detect-btn" id="btnDetectLocation">📍 تحديد موقعي</button>
+        <span id="locationStatus">اضغط لتحديد موقعك تلقائياً</span>
+      </div>
+
+      <label>المدينة / المحافظة</label>
+      <input name="city_name" id="regCity" required placeholder="مثال: القاهرة" />
+
+      <label>العنوان التفصيلي</label>
+      <input name="address_line" id="regAddress" required placeholder="مثال: شارع النصر، رقم 5" />
+
+      <!-- الدور -->
+      <label>نوع الحساب</label>
+      <div class="role-picker">
+        <input type="radio" name="role" id="roleFarmer" value="farmer" required>
+        <label for="roleFarmer" class="role-card">
+          <span class="role-icon">🌾</span>
+          <span class="role-name">مزارع</span>
+        </label>
+        <input type="radio" name="role" id="roleTrader" value="trader">
+        <label for="roleTrader" class="role-card">
+          <span class="role-icon">🏪</span>
+          <span class="role-name">تاجر</span>
+        </label>
+      </div>
+
+      <!-- كلمة المرور -->
+      <label>كلمة المرور</label>
+      <input name="password" id="regPassword" required type="password" placeholder="••••••••" />
+      <div class="password-strength" id="strengthBar">
+        <div class="strength-track">
+          <div class="strength-fill" id="strengthFill"></div>
+        </div>
+        <span class="strength-label" id="strengthLabel"></span>
+      </div>
+
+      <label>تأكيد كلمة المرور</label>
+      <input name="password_confirm" id="regPasswordConfirm" required type="password" placeholder="••••••••" />
+      <span class="confirm-msg" id="confirmMsg" hidden></span>
+
+      <button class="btn btn--primary" type="submit">إنشاء حساب</button>
+
+    </form>
+  </div>
+</div>
+  <!-- //////////////////////////////////////////////////////////////////////// -->
+    <section>
+    <div class="features">
+        <p class="p1">لماذا تختار سوق زرعتك؟</p>
+        <div class="features-contener">
+            <div class="features-div">
+
+                <div class="icon-features">
+                    <i class="fa-regular fa-eye"></i>
+                </div><!-- icon-features-->
+                <p class="features-title"> اسعار شفافة و منافسة</p>
+                <p class="features-describtion">نظام تسعير شفاف يعتمد على عرض وطلب السوق
+الحقيقي لحظة بلحظة مع تحديثات يومية للأسعار</p>
+              
+            </div><!-- features-div-->
+            <div class="features-div">
+
+                <div class="icon-features">
+                    <i class="fa-solid fa-handshake-simple"></i>
+                </div><!-- icon-features-->
+                <p class="features-title">   بيع وشراء مباشر بدون وسطاء </p>
+                <p class="features-describtion">ربط مباشر بين المزارع والتاجر أو المستهلك النهائي لتقليل التكاليف و ضمان سعر البيع</p>
+              
+            </div><!-- features-div-->
+            <div class="features-div">
+
+                <div class="icon-features">
+                    <i class="fa-regular fa-circle-check"></i>
+                </div><!-- icon-features-->
+                <p class="features-title"> منتجات طازجة من المزارع</p>
+                <p class="features-describtion">نضمن لك وصول المحاصيل من الحقل مباشرة دون
+تخزين طويل لضمان أعلى جودة وطعم أصيل</p>
+              
+            </div><!-- features-div-->
+        </div><!-- features-contener-->
+    </div> <!-- features-->
+   </section>
+   <!-- /////////////////////////////////////////////////////////// -->
+
+      <footer>
+     <div class="footer">
+        <div class="links-footer">
+            <div class="search-footer">
+                <p>القائمة التقليدية</p>
+                <button><i class="fa-regular fa-paper-plane"></i></button>
+                <input type="email" placeholder="بريدك الالكتروني">
+
+            </div><!--search-footer-->
+            
+            <div class="div-links-footer">
+                <p>المساعدة</p>
+                <ul>
+                    <li></li>
+                    <li><a href="">الشروط و الحكام</a></li>
+                     <li><a href="">سياسة الخصوصية</a></li>
+                      <li><a href="">تواصل معنا</a></li>
+                </ul>
+
+            </div><!--div links footer-->
+            <div class="div-links-footer">
+                <p>الروابط</p>
+                <ul>
+                    <li></li>
+                    <li><a href="">  عن المنصة </a></li>
+                     <li><a href=""> دليل المزارع</a></li>
+                      <li><a href=""> سوق الجملة</a></li>
+                </ul>
+
+            </div><!--div links footer-->
+            <div class="logo-footer">
+                 <div class="logo footer-logo"><img src="images/logo.png" alt="#" width="220" height="80">
+                </div><!--logo-->
+                  <p>المنصة الزراعية الأولى في مصر لتمكين المزارعين
+وتوفير أجود المحاصيل الزراعية للمستهلكين
+والتجار بأسعار عادلة</p>
+                <i class="fa-solid fa-share-nodes"></i>
+                <i class="fa-solid fa-medal"></i>
+            </div><!--logo-footer-->
+                 
+             
+
+            
+
+        </div><!--links footer-->
+         <p class="line-end"></p>
+                <div class="end-end">
+                <p>
+                 &copy; 2026 Smart Farm Market Egypt - سوق المزرعة. جميع الحقوق محفوظة. 
+                </p>
+            </div>
+     </div><!-- footer-->
+
+   </footer>
+   <!-- ///////////////////////////////////////////////////////////////////////////// -->
+
+
+  <script src="js/auth.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

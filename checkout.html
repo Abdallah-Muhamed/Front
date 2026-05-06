@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إتمام الشراء -زرعتك</title>
+  
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/all.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div class="brand">
+        <div class="brand__icon">
+          <a href="index.html">
+            <img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'">
+          </a>
+        </div>
+        <div class="brand__text">
+          <div class="brand__name">سوق المزرعة</div>
+        </div>
+      </div>
+      <button class="btn btn--ghost" onclick="window.location.href='index.html'">← رجوع للرئيسية</button>
+    </div>
+  </header>
+
+  <main class="checkout">
+    <div class="container checkout__grid">
+      
+      <!-- يمين: ملخص الطلب -->
+      <section class="checkout__left">
+        <div class="panel">
+          <h2 class="panel__title">ملخص الطلب</h2>
+          <div id="checkoutItems" class="checkout-items"></div>
+          <div id="checkoutEmpty" class="checkout-empty" hidden>السلة فاضية. أضف منتجات أولاً.</div>
+          
+          <div class="checkout-totalRow">
+            <span class="checkout-totalLabel">إجمالي السعر</span>
+            <strong id="checkoutTotal" class="checkout-total">0 ج.م</strong>
+          </div>
+
+          <div class="field" style="margin-top: 20px;">
+            <label>ملاحظات (اختياري)</label>
+            <textarea id="orderNotes" placeholder="مثال: اترك الطلب عند الباب..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- يسار: طرق الدفع -->
+      <section class="checkout__right">
+        <div class="panel">
+          <h2 class="panel__title">طرق الدفع</h2>
+          <div class="payment-grid" id="paymentMethods"></div>
+          
+          <div class="field">
+            <div class="hint">اختار طريقة الدفع وأكد الطلب.</div>
+          </div>
+
+          <!-- تفاصيل البنك (مخفية) -->
+          <div id="bankDetails" class="bankDetails" hidden>
+            <h3 class="panel__title" style="font-size:16px; margin:0 0 10px;">بيانات البطاقة البنكية</h3>
+            <div class="field">
+              <label>رقم البطاقة</label>
+              <input id="cardNumber" type="text" placeholder="مثال: 4111 1111 1111 1111" />
+            </div>
+            <div class="field">
+              <label>اسم صاحب البطاقة</label>
+              <input id="cardName" type="text" placeholder="مثال: ALI AHMAD" />
+            </div>
+            <div style="display:flex; gap:10px;">
+              <div class="field" style="flex:1;">
+                <label>تاريخ الانتهاء</label>
+                <input id="cardExp" type="text" placeholder="MM/YY" />
+              </div>
+              <div class="field" style="flex:1;">
+                <label>CVV</label>
+                <input id="cardCvv" type="password" placeholder="123" />
+              </div>
+            </div>
+          </div>
+
+          <div id="checkoutMsg" class="checkout-msg" hidden></div>
+          <button id="btnConfirmOrder" class="btn btn--primary btn--full">تأكيد الطلب</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- نافذة النجاح -->
+  <div id="orderSuccessOverlay" class="orderSuccessOverlay" hidden>
+    <div class="orderSuccessBox">
+      <div class="orderSuccessIcon">✅</div>
+      <h2 class="orderSuccessTitle">تم تأكيد الطلب</h2>
+      <p class="orderSuccessText">شكراً لثقتك! سيتم توجيهك للصفحة الرئيسية…</p>
+    </div>
+  </div>
+
+  <!-- ربط ملف الجافاسكريبت -->
+  <script src="js/checkout.js"></script>
+</body>
+</html>
