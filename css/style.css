@@ -779,7 +779,7 @@ panel { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 
 /* الأزرار */
 .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; }
 .btn--ghost { background: transparent; border: 1px solid #ccc; color: #333; }
-.btn--primary { background: #2e7d32; color: #fff; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; }
+/* .btn--primary { background: #2e7d32; color: #fff; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; } */
 .btn--primary:hover { background: #1b5e20; }
 .btn--full { width: 100%; }
 
@@ -836,6 +836,81 @@ panel { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 
   .checkout__left { order: 2; }
   .checkout__right { order: 1; }
 }
+
+
+ .password-strength { margin: 6px 0 12px; }
+    .strength-track { height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+    .strength-fill  { height: 100%; width: 0%; border-radius: 4px; transition: width .35s ease, background .35s ease; }
+    .strength-label { font-size: 12px; font-weight: 600; margin-top: 4px; display: block; }
+    .confirm-msg    { font-size: 12px; font-weight: 600; display: block; margin-top: 4px; }
+
+    /* Role picker */
+    .role-picker { display: flex; gap: 12px; margin-bottom: 4px; }
+    .role-picker input[type="radio"] { display: none; }
+    .role-card {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 10px; border: 2px solid #e2e8f0; border-radius: 12px;
+      cursor: pointer; transition: border-color .2s, background .2s, transform .15s;
+      background: #f8fafc; user-select: none;
+    }
+    .role-card:hover { border-color: #68d391; background: #f0fff4; transform: translateY(-2px); }
+    .role-icon { font-size: 28px; line-height: 1; }
+    .role-name { font-size: 14px; font-weight: 700; color: #2d3748; }
+    .role-picker input[type="radio"]:checked + .role-card {
+      border-color: #38a169; background: #f0fff4;
+      box-shadow: 0 0 0 3px rgba(56,161,105,.2);
+    }
+
+
+
+    /* Avatar upload in register */
+    .avatar-upload { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .avatar-preview {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: #f0fff4; border: 3px dashed #68d391;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; cursor: pointer; transition: border-color .2s;
+    }
+    .avatar-preview:hover { border-color: #38a169; }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-placeholder { font-size: 28px; }
+    .avatar-upload-btn {
+      background: #f0fff4; color: #276749; border: 1.5px solid #38a169;
+      border-radius: 8px; padding: 6px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .avatar-upload-btn:hover { background: #c6f6d5; }
+    .avatar-hint { font-size: 11px; color: #999; }
+    /* Location detect bar */
+    .location-detect { display:flex; align-items:center; gap:8px; margin-bottom:12px; padding:10px 12px; background:#f0fff4; border:1.5px solid #68d391; border-radius:10px; }
+    .location-detect-btn { background:none; border:none; cursor:pointer; font-size:13px; font-weight:700; color:#276749; white-space:nowrap; padding:0; display:flex; align-items:center; gap:4px; }
+    .location-detect-btn:hover { color:#38a169; }
+    #locationStatus { font-size:12px; color:#718096; flex:1; }
+
+    /* User avatar in navbar */
+    .user-area { display: flex; align-items: center; gap: 8px; }
+    .user-avatar-wrap { position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+    .user-initials-circle {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #38a169, #276749);
+      color: #fff; font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: default; user-select: none;
+    }
+    .user-avatar-img {
+      width: 36px; height: 36px; border-radius: 50%;
+      object-fit: cover; position: absolute; inset: 0;
+    }
+    /* Navbar fix */
+    .topbar__inner { display: flex; align-items: center; gap: 16px; flex-wrap: nowrap; }
+    .actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .auth-buttons { display: flex; align-items: center; gap: 8px; }
+    .auth-buttons .btn { height: 38px; padding: 0 18px; font-size: 14px; white-space: nowrap; }
+    .cart-btn { display: flex; align-items: center; gap: 4px; height: 38px; padding: 0 12px;
+      border-radius: 8px; font-size: 20px; background: transparent; border: none; cursor: pointer;
+      position: relative; }
+    .cart-badge { font-size: 12px; font-weight: 700; background: #38a169; color: #fff;
+      border-radius: 999px; padding: 1px 6px; }
 
 /* .checkout{padding:22px 0 60px}
 .checkout__grid{
