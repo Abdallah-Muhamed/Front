@@ -290,12 +290,12 @@ function initProducts() {
 // =====================
 // Category filter → products page
 // =====================
-document.querySelectorAll(".section1-category .category[data-category]").forEach(card => {
-  card.addEventListener("click", () => {
-    sessionStorage.setItem("selectedCategory", card.dataset.category);
-    window.location.href = "products.html";
-  });
-});
+// document.querySelectorAll(".section1-category .category[data-category]").forEach(card => {
+//   card.addEventListener("click", () => {
+//     sessionStorage.setItem("selectedCategory", card.dataset.category);
+//     window.location.href = "products.html";
+//   });
+// });
 
 // =====================
 // Logout — مسح السلة + تحديث الـ UI
@@ -308,6 +308,46 @@ if (btnLogoutScript) {
     updateCartBadge();
   });
 }
+
+// 1. متغير لحفظ التصنيف الحالي (الافتراضي هو الكل)
+// var selectedCategory = "الكل";
+
+// // 2. دالة الفلترة التي تستدعيها الصور عند الضغط
+// function filterProducts(categoryName) {
+//     selectedCategory = categoryName; // تحديث التصنيف المختار
+//     renderHomeProducts(); // إعادة رسم المنتجات بناءً على الفلتر
+// }
+
+// // 3. تعديل دالة رسم المنتجات (renderHomeProducts)
+// function renderHomeProducts() {
+//     var grid = document.getElementById("homeProductsGrid");
+//     if (!grid) return;
+    
+//     var html = "";
+//     var count = 0;
+
+//     // لفة على مصفوفة المنتجات الأساسية
+//     PRODUCTS.forEach(function(p) {
+//         // الشرط: إذا كان التصنيف "الكل" أو يطابق تصنيف المنتج
+//         if (selectedCategory === "الكل" || p.category === selectedCategory) {
+//             html += '<div class="product-card">' +
+//                         '<img src="'+p.img+'">' +
+//                         '<h3>'+p.name+'</h3>' +
+//                         '<p>'+p.price+' ج.م</p>' +
+//                         '<button class="simple-pop-btn add-btn" onclick="addToCart('+p.id+')">أضف للسلة 🛒</button>' +
+//                     '</div>';
+//             count++;
+//         }
+//     });
+
+//     grid.innerHTML = html;
+
+//     // تحديث عداد النتائج لو موجود
+//     var resultInfo = document.getElementById("resultInfo");
+//     if (resultInfo) {
+//         resultInfo.innerText = "عدد النتائج: " + count;
+//     }
+// }
 
 // =====================
 // Init

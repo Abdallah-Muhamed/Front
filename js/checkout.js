@@ -359,15 +359,7 @@ function renderCheckout() {
 btnConfirmOrder?.addEventListener("click", () => {
   const user = getAuth();
 
-  if (!user) {
-    if (checkoutMsg) {
-      checkoutMsg.hidden = false;
-      checkoutMsg.textContent = "سجل الدخول قبل تأكيد الطلب.";
-    }
-    openLoginImpl();
-    showLogin("سجل الدخول قبل تأكيد الطلب.");
-    return;
-  }
+ 
 
   const checked = document.querySelector('input[name="payment"]:checked');
   const payment = checked ? checked.value : null;
@@ -381,37 +373,37 @@ btnConfirmOrder?.addEventListener("click", () => {
   }
 
   // If Visa -> validate card data
-  if (payment === "visa") {
-    const cardNumber = (cardNumberEl?.value || "").trim();
-    const cardName = (cardNameEl?.value || "").trim();
-    const cardExp = (cardExpEl?.value || "").trim();
-    const cardCvv = (cardCvvEl?.value || "").trim();
+  // if (payment === "visa") {
+  //   const cardNumber = (cardNumberEl?.value || "").trim();
+  //   const cardName = (cardNameEl?.value || "").trim();
+  //   const cardExp = (cardExpEl?.value || "").trim();
+  //   const cardCvv = (cardCvvEl?.value || "").trim();
 
-    if (!cardNumber || !cardName || !cardExp || !cardCvv) {
-      if (checkoutMsg) {
-        checkoutMsg.hidden = false;
-        checkoutMsg.textContent = "أكمل بيانات البطاقة البنكية.";
-      }
-      return;
-    }
+  //   if (!cardNumber || !cardName || !cardExp || !cardCvv) {
+  //     if (checkoutMsg) {
+  //       checkoutMsg.hidden = false;
+  //       checkoutMsg.textContent = "أكمل بيانات البطاقة البنكية.";
+  //     }
+  //     return;
+  //   }
 
-    // save to user (DEMO ONLY)
-    const users = getUsers();
-    const idx = users.findIndex(
-      (u) => (u.email || "").toLowerCase() === (user.email || "").toLowerCase()
-    );
+  //   // save to user (DEMO ONLY)
+  //   const users = getUsers();
+  //   const idx = users.findIndex(
+  //     (u) => (u.email || "").toLowerCase() === (user.email || "").toLowerCase()
+  //   );
 
-    if (idx !== -1) {
-      users[idx].bankCardDemo = {
-        cardNumber,
-        cardName,
-        cardExp,
-        cardCvv,
-        updatedAt: new Date().toISOString(),
-      };
-      setUsers(users);
-    }
-  }
+  //   if (idx !== -1) {
+  //     users[idx].bankCardDemo = {
+  //       cardNumber,
+  //       cardName,
+  //       cardExp,
+  //       cardCvv,
+  //       updatedAt: new Date().toISOString(),
+  //     };
+  //     setUsers(users);
+  //   }
+  // }
 
   // success
   showOrderSuccess();

@@ -448,6 +448,96 @@ if (searchInput) {
   });
 }
 
+
+// 1. دالة لقراءة الكلمة المرسلة في الرابط (مثلاً ?cat=خضروات)
+function getCategoryFromURL() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('cat'); // ستعيد كلمة "خضروات" أو "فاكهة" إلخ..
+}
+
+// 2. تعديل دالة التشغيل عند فتح الصفحة
+window.onload = function() {
+    var categoryFromLink = getCategoryFromURL();
+
+    if (categoryFromLink) {
+        // لو وجدنا تصنيف في الرابط، نقوم بفلترة المنتجات فوراً
+        console.log("عرض منتجات قسم: " + categoryFromLink);
+        filterByCategory(categoryFromLink); 
+    } else {
+        // لو مفيش تصنيف (يعني فتح الصفحة عادي)، يعرض الكل
+        renderProducts(); 
+    }
+};
+
+// 3. دالة الفلترة (تأكد أنها تستخدم المصفوفة الصحيحة للمنتجات عندك)
+// function filterByCategory(catName) {
+//     var grid = document.getElementById("productsGrid");
+//     var html = "";
+    
+//     for (var i = 0; i < PRODUCTS.length; i++) {
+//         var p = PRODUCTS[i];
+//     //      card.innerHTML = `
+//     //   <div class="product-card__img">
+//     //     <img alt="${p.name}" src="${p.img}">
+//     //   </div>
+//     //   <div class="product-card__body">
+//     //     <h3 class="product-card__title">${p.name}</h3>
+//     //     <div class="product-card__meta">
+//     //       <span class="price">${formatMoney(p.price)}</span>
+//     //       <span>⭐ ${p.rating ?? 'غير مقيم'}</span>
+//     //     </div>
+//     //     <div class="product-card__actions">
+//     //       <button class="add-btn" data-add="${p.id}">أضف للسلة</button>
+//     //     </div>
+//     //   </div>
+//     // `;
+//         if (p.category === catName) {
+//             html += '<div class="product-card">' +
+//                         '<img src="' + p.img + '">' +
+//                         '<h3>' + p.name + '</h3>' +
+//                         '<p>' + p.price + ' ج.م</p>' +
+//                         '<button class="add-btn" data-add="${p.id}">أضف للسلة</button>' +
+//                     '</div>';
+//         }
+//     }
+//     grid.innerHTML = html;
+// }
+
+
+
+function filterByCategory(catName) {
+    var grid = document.getElementById("productsGrid");
+    if (!grid) return;
+
+    var html = "";
+    var count = 0;
+
+    for (var i = 0; i < PRODUCTS.length; i++) {
+        var p = PRODUCTS[i];
+        
+        // شرط الفلترة
+        if (p.category === catName) {
+            // هنا بنكتب الـ HTML بنفس تقسيم صفحة المنتجات الأصلية عشان الديزاين ميبوظش
+            html += '<div class="product-card">' +
+                        
+                        '<img src="' + p.img + '" class="product-img">' +
+                        '<div class="product-details">' +
+                            '<h3 class="product-title">' + p.name + '</h3>' +
+                            '<div class="rating-badge"><i class="fas fa-star"></i> ' + (p.rating || "4.5") + '</div>' +
+                            '<div class="product-price">' + p.price + ' ج.م</div>' +
+                            '<div class="product-seller"><i class="fas fa-store"></i>  </div>' +
+                        '</div>' +
+                        '<button class="add-btn" data-add="${p.id}">أضف للسلة</button>' +
+                            // '<i class="fas fa-cart-plus"></i> أضف إلى السلة' +
+                        // '</button>' +
+                    '</div>';
+            count++;
+        }
+    }
+
+    grid.innerHTML = html;
+}
+
 // Init
 syncAuthUI();
 updateCartBadge();

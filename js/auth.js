@@ -360,11 +360,22 @@ async function handleRegister(e) {
 
     // نجاح التسجيل — auto login
     // 1. Login تلقائي
-    const loginRes = await fetch(`${BASE_URL}/api/Authentication/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: payload.email, password: payload.password }),
-    });
+    // const loginRes = await fetch(`${BASE_URL}/api/Authentication/login`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ email: payload.email, password: payload.password }),
+    // });
+    
+alert('✅ تم إنشاء الحساب بنجاح! برجاء تسجيل الدخول.');
+
+// اقفل register
+closeModal('registerModal', 'registerBackdrop');
+
+// افتح login
+openModal('loginModal', 'loginBackdrop');
+
+// فضّي الفورم
+form.reset();
     const loginData = await loginRes.json().catch(() => ({}));
 
     let token = '';
