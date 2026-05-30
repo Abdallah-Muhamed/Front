@@ -56,25 +56,17 @@
 
     <script src="app.js"></script>
     <script>
-        // دالة لجلب بيانات هذا المزارع تحديداً
         function loadFarmerDashboard() {
             var currentUser = JSON.parse(localStorage.getItem("currentUser"));
             
-            // 1. التأكد أن المستخدم مسجل دخول
-            // if (!currentUser) {
-            //     alert("يرجى تسجيل الدخول أولاً");
-            //     window.location.href = "index.html";
-            //     return;
-            // }
+        
             
             document.getElementById("farmerName").innerText = currentUser.name;
 
-            // 2. جلب كل المنتجات من الـ DB (أو المصفوفة) وتصفية منتجات هذا المزارع فقط
-            // ملاحظة: لكي يعمل هذا، يجب أن يكون لكل منتج خاصية (sellerEmail)
+         
             var allProducts = PRODUCTS; // PRODUCTS معرفة في app.js
             var myProducts = [];
             
-            // محاكاة: سنفترض أن المنتجات التي لها ID زوجي تابعة لهذا المزارع للتجربة
             for(var i=0; i<allProducts.length; i++) {
                 if(i % 2 === 0) myProducts.push(allProducts[i]);
             }
@@ -117,5 +109,6 @@
         }
     </script>
     <script src="js/script.js"></script>
+    <script src="js/products-page.js"></script>
 </body>
 </html>
