@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم المزارع - سوق المزرعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/all.css">
+    <style>
+         /* body { background: #f4f7f6; color: #1a202c; } */
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-inner">
+            <a href="index.html" class="logo"><i class="fas fa-leaf"></i> سوق المزرعة</a>
+            <nav class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="products.html">المتجر</a>
+                <a href="#" onclick="doLogout()">خروج</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- ترحيب باسم المزارع -->
+        <h1 style="margin-top: 30px;">لوحة تحكم: <span id="farmerName" style="color:#2e7d32;">المزارع</span></h1>
+
+        <!-- الإحصائيات -->
+        <div class="stats-grid">
+            <div class="stat-card"><h3 id="farmCount">0</h3><p>مزارعي</p></div>
+            <div class="stat-card"><h3 id="productCount">0</h3><p>منتجاتي المعروضة</p></div>
+            <div class="stat-card"><h3>28</h3><p>طلبات بيع</p></div>
+            <div class="stat-card"><h3>12,450</h3><p>الأرباح (ج.م)</p></div>
+        </div>
+
+        <!-- قسم مزارعي -->
+        <div class="section-header">
+            <h2>مزارعي الخاصة</h2>
+            <button class="btn-add" onclick="alert('قريباً: إضافة مزرعة جديدة')">+ إضافة مزرعة</button>
+        </div>
+        <div class="cards-grid" id="farmerFarmsGrid">
+            <!-- سيتم الرسم بالجافاسكريبت -->
+        </div>
+
+        <!-- قسم منتجاتي -->
+        <div class="section-header">
+            <h2>منتجاتي المعروضة للبيع</h2>
+            <button class="btn-add" onclick="alert('قريباً: إضافة محصول للبيع')">+ إضافة محصول</button>
+        </div>
+        <div class="cards-grid" id="farmerProductsGrid">
+            <!-- سيتم الرسم بالجافاسكريبت -->
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // دالة لجلب بيانات هذا المزارع تحديداً
+        function loadFarmerDashboard() {
+            var currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            
+            // 1. التأكد أن المستخدم مسجل دخول
+            // if (!currentUser) {
+            //     alert("يرجى تسجيل الدخول أولاً");
+            //     window.location.href = "index.html";
+            //     return;
+            // }
+            
+            document.getElementById("farmerName").innerText = currentUser.name;
+
+            // 2. جلب كل المنتجات من الـ DB (أو المصفوفة) وتصفية منتجات هذا المزارع فقط
+            // ملاحظة: لكي يعمل هذا، يجب أن يكون لكل منتج خاصية (sellerEmail)
+            var allProducts = PRODUCTS; // PRODUCTS معرفة في app.js
+            var myProducts = [];
+            
+            // محاكاة: سنفترض أن المنتجات التي لها ID زوجي تابعة لهذا المزارع للتجربة
+            for(var i=0; i<allProducts.length; i++) {
+                if(i % 2 === 0) myProducts.push(allProducts[i]);
+            }
+
+            // 3. رسم المنتجات
+            var pGrid = document.getElementById("farmerProductsGrid");
+            var pHtml = "";
+            for(var j=0; j<myProducts.push.length; j++) {
+                var p = myProducts[j];
+                if(!p) continue;
+                pHtml += '<div class="crop-card">' +
+                            '<img src="'+p.img+'">' +
+                            '<div class="crop-details">' +
+                                '<h4>'+p.name+'</h4>' +
+                                '<p>السعر: '+p.price+' ج.م</p>' +
+                                '<p style="color:green">الحالة: معروض للبيع</p>' +
+                            '</div>' +
+                         '</div>';
+            }
+            pGrid.innerHTML = pHtml;
+            document.getElementById("productCount").innerText = myProducts.length;
+
+            // 4. رسم مزارع وهمية (لأننا لم ننشئ مصفوفة مزارع بعد)
+            var fGrid = document.getElementById("farmerFarmsGrid");
+            fGrid.innerHTML = `
+                <div class="farm-card">
+                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400" class="farm-img">
+                    <div class="farm-info">
+                        <h4>مزرعة النخيل الجديدة</h4>
+                        <p>الشرقية - بلبيس</p>
+                        <p style="font-size:12px; margin-top:5px;">المساحة: 5 فدان</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById("farmCount").innerText = "1";
+        }
+
+        window.onload = function() {
+            loadFarmerDashboard();
+        }
+    </script>
+    <script src="js/script.js"></script>
+</body>
+</html>

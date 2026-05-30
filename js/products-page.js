@@ -469,40 +469,6 @@ window.onload = function() {
     }
 };
 
-// 3. دالة الفلترة (تأكد أنها تستخدم المصفوفة الصحيحة للمنتجات عندك)
-// function filterByCategory(catName) {
-//     var grid = document.getElementById("productsGrid");
-//     var html = "";
-    
-//     for (var i = 0; i < PRODUCTS.length; i++) {
-//         var p = PRODUCTS[i];
-//     //      card.innerHTML = `
-//     //   <div class="product-card__img">
-//     //     <img alt="${p.name}" src="${p.img}">
-//     //   </div>
-//     //   <div class="product-card__body">
-//     //     <h3 class="product-card__title">${p.name}</h3>
-//     //     <div class="product-card__meta">
-//     //       <span class="price">${formatMoney(p.price)}</span>
-//     //       <span>⭐ ${p.rating ?? 'غير مقيم'}</span>
-//     //     </div>
-//     //     <div class="product-card__actions">
-//     //       <button class="add-btn" data-add="${p.id}">أضف للسلة</button>
-//     //     </div>
-//     //   </div>
-//     // `;
-//         if (p.category === catName) {
-//             html += '<div class="product-card">' +
-//                         '<img src="' + p.img + '">' +
-//                         '<h3>' + p.name + '</h3>' +
-//                         '<p>' + p.price + ' ج.م</p>' +
-//                         '<button class="add-btn" data-add="${p.id}">أضف للسلة</button>' +
-//                     '</div>';
-//         }
-//     }
-//     grid.innerHTML = html;
-// }
-
 
 
 function filterByCategory(catName) {
