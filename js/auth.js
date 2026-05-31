@@ -552,3 +552,52 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnLogout')
     ?.addEventListener('click', handleLogout);
 });
+// //////////////////////////////////////////////////////////
+function syncAuthUI() {
+  const user = getAuth(); // بتجيب اليوزر من الذاكرة
+  
+  const authButtons = document.getElementById("authButtons");
+  const userArea = document.getElementById("userArea"); // ده الـ ID الصح بتاعك
+  const userDisplayName = document.getElementById("userDisplayName");
+
+  if (user) {
+    // لو مسجل دخول: نخفي زراير اللوجين ونظهر منطقة اليوزر (اللي جواها زرار المزارع)
+    if (authButtons) authButtons.hidden = true;
+    if (userArea) userArea.hidden = false;
+    if (userDisplayName) userDisplayName.textContent = user.username;
+  } else {
+    // لو مش مسجل دخول: نظهر زراير اللوجين ونخفي منطقة اليوزر
+    if (authButtons) authButtons.hidden = false;
+    if (userArea) userArea.hidden = true;
+  }
+}
+
+
+
+
+// مثال لدالة تسجيل الدخول
+// function doLogin() {
+//     // ... كود التحقق ...
+//     if (user) {
+//         localStorage.setItem(AUTH_KEY, JSON.stringify({ username: user.username, email: user.email }));
+//         closeLogin();
+//         syncAuthUI(); // 👈 مهم جداً عشان الزرار يظهر فوراً
+//     }
+// }
+// function checkAuth() {
+//     var currentUser = localStorage.getItem("currentUser");
+    
+//     var buttonsDiv = document.getElementById('authButtons'); // زراير Login/Register
+//     var profileDiv = document.getElementById('userProfile'); // div البروفايل اللي جواه زرار المزارع
+//     var nameDisplay = document.getElementById('userNameDisplay');
+
+//     if (currentUser != null) {
+//         // لو مسجل دخول: اظهر البروفايل (وبالتالي هيظهر زرار المزارع اللي جواه)
+//         buttonsDiv.style.display = "none";
+//         profileDiv.style.display = "flex";
+//         nameDisplay.innerText = "مرحباً " + currentUser;
+//     } else {
+//         // لو مش مسجل: اخفي البروفايل والزرار واظهر زراير الدخول
+//         buttonsDiv.style.display = "flex";
+//         profileDiv.style.display = "none";
+//     }}

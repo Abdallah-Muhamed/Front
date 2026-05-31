@@ -13,3 +13,16 @@ function login(){
         alert("wrong data");
     }
 }
+
+
+
+
+// مثال لدالة تسجيل الدخول
+// function doLogin() {
+//     // ... كود التحقق ...
+//     if (user) {
+//         localStorage.setItem(AUTH_KEY, JSON.stringify({ username: user.username, email: user.email }));
+//         closeLogin();
+//         syncAuthUI(); // 👈 مهم جداً عشان الزرار يظهر فوراً
+//     }
+// }

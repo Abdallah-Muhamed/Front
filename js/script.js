@@ -1,14 +1,38 @@
 // =====================
 // Demo Data
 // =====================
-const products = [
-  { id: 1, name: "قمح (كيلو)", price: 25, img: "images/item1 (1).jpg" },
-  { id: 2, name: "بطاطس (كيلو)", price: 20, img: "images/item5.jpg" },
-  { id: 3, name: "طماطم (كيلو)", price: 30, img: "images/item2.jpg" },
-  { id: 4, name: "عنّب أسود (كيلو)", price: 55, img: "images/item4.jpg" },
-  { id: 5, name: "فراولة (باكيت)", price: 45, img: "images/item6.jpg" },
-  { id: 6, name: "ذرة صفراء (كيلو)", price: 35, img: "images/item3.jpg" },
+// const products = [
+//   { id: 1, name: "قمح (كيلو)", price: 25, img: "images/item1 (1).jpg" },
+//   { id: 2, name: "بطاطس (كيلو)", price: 20, img: "images/item5.jpg" },
+//   { id: 3, name: "طماطم (كيلو)", price: 30, img: "images/item2.jpg" },
+//   { id: 4, name: "عنّب أسود (كيلو)", price: 55, img: "images/item4.jpg" },
+//   { id: 5, name: "فراولة (باكيت)", price: 45, img: "images/item6.jpg" },
+//   { id: 6, name: "ذرة صفراء (كيلو)", price: 35, img: "images/item3.jpg" },
+// ];
+// ====== إعدادات المنتجات الديناميكية ======
+const PRODUCTS_KEY = "demo_all_products";
+
+// المنتجات الافتراضية (عشان الموقع ميكونش فاضي أول مرة)
+const defaultProducts = [
+  { id: 1, name: "قمح (كيلو)", price: 25, category: "حبوب", img: "images/item1 (1).jpg", sellerEmail: "admin" },
+  { id: 2, name: "بطاطس (كيلو)", price: 20, category: "خضروات",  img: "images/item5.jpg", sellerEmail: "admin" },
+  { id: 3, name: "طماطم (كيلو)", price: 30, category: "خضروات",  img: "images/item2.jpg", sellerEmail: "admin" },
+  { id: 4, name: "موز (قطعة)", price: 15, category: "فاكهة", img: "images/item10.jpg", sellerEmail: "admin" }
 ];
+
+// دالة لجلب كل المنتجات (الأساسية + التي يضيفها المزارعين)
+function getProducts() {
+    let prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY));
+    if (!prods || prods.length === 0) {
+        prods = defaultProducts;
+        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(prods));
+    }
+    return prods;
+}
+
+// تحديث ثابت PRODUCTS ليعمل مع باقي الكود القديم
+let PRODUCTS = getProducts();
+let byId = new Map(PRODUCTS.map(p => [p.id, p]));
 
 const byId = new Map(products.map(p => [p.id, p]));
 
@@ -297,7 +321,74 @@ if (btnLogoutScript) {
     updateCartBadge();
   });
 }
+// ///////////////////////////////////////////////////////////
+function syncAuthUI() {
+    var user = getAuth(); // أو localStorage.getItem("demo_user")
+    
+    var authBtns = document.getElementById("authButtons");
+    var userProf = document.getElementById("userProfile");
+    var userName = document.getElementById("userNameDisplay");
 
+    if (authBtns && userProf && userName) {
+        if (user) {
+            // ✅ لو مسجل دخول: اخفي زراير الدخول، واظهر بروفايل المستخدم (ومنه زرار المزارع)
+            authBtns.style.display = "none";
+            userProf.style.display = "flex";
+            userName.innerText = "مرحباً " + user.username;
+        } else {
+            // ❌ لو مش مسجل: اظهر زراير الدخول، واخفي البروفايل
+            authBtns.style.display = "flex";
+            userProf.style.display = "none";
+        }
+    }
+}
+
+function syncAuthUI() {
+  const user = getAuth(); // بتجيب اليوزر من الذاكرة
+  
+  const authButtons = document.getElementById("authButtons");
+  const userArea = document.getElementById("userArea"); // ده الـ ID الصح بتاعك
+  const userDisplayName = document.getElementById("userDisplayName");
+
+  if (user) {
+    // لو مسجل دخول: نخفي زراير اللوجين ونظهر منطقة اليوزر (اللي جواها زرار المزارع)
+    if (authButtons) authButtons.hidden = true;
+    if (userArea) userArea.hidden = false;
+    if (userDisplayName) userDisplayName.textContent = user.username;
+  } else {
+    // لو مش مسجل دخول: نظهر زراير اللوجين ونخفي منطقة اليوزر
+    if (authButtons) authButtons.hidden = false;
+    if (userArea) userArea.hidden = true;
+  }
+}
+
+// مثال لدالة تسجيل الدخول
+// function doLogin() {
+//     // ... كود التحقق ...
+//     if (user) {
+//         localStorage.setItem(AUTH_KEY, JSON.stringify({ username: user.username, email: user.email }));
+//         closeLogin();
+//         syncAuthUI(); // 👈 مهم جداً عشان الزرار يظهر فوراً
+//     }
+// }
+// function checkAuth() {
+//     var currentUser = localStorage.getItem("currentUser");
+    
+//     var buttonsDiv = document.getElementById('authButtons'); // زراير Login/Register
+//     var profileDiv = document.getElementById('userProfile'); // div البروفايل اللي جواه زرار المزارع
+//     var nameDisplay = document.getElementById('userNameDisplay');
+
+//     if (currentUser != null) {
+//         // لو مسجل دخول: اظهر البروفايل (وبالتالي هيظهر زرار المزارع اللي جواه)
+//         buttonsDiv.style.display = "none";
+//         profileDiv.style.display = "flex";
+//         nameDisplay.innerText = "مرحباً " + currentUser;
+//     } else {
+//         // لو مش مسجل: اخفي البروفايل والزرار واظهر زراير الدخول
+//         buttonsDiv.style.display = "flex";
+//         profileDiv.style.display = "none";
+//     }
+// }
 
 // =====================
 // Init

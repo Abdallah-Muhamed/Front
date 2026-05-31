@@ -29,23 +29,39 @@
 
       <nav class="actions">
         
-        <button class="btn btn--primary"><a href="farmer-dashboard.html" class="nav-link">صفحة المزارع</a></button>
+        
         <!-- افتراضيًا يظهر Login/Register -->
         <div id="authButtons" class="auth-buttons">
           <button class="btn btn--ghost" id="btnLoginOpen">login</button>
           <button class="btn btn--primary" id="btnRegisterOpen">register</button>
         </div>
+        <!-- منطقة المستخدم (تظهر بعد تسجيل الدخول) -->
+<div id="userProfile" style="display: none; align-items: center; gap: 15px;">
+    
+    <!-- اسم المستخدم -->
+    <span id="userNameDisplay" style="color: #2e7d32; font-weight: bold;">مرحباً</span>
+    
+    <!-- 👇 الزرار الجديد (صفحة المزارع) 👇 -->
+    <a href="farmer-dashboard.html" class="btn-farmer" style="background: #2e7d32; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px;">
+        🌾 صفحة المزارع
+    </a>
+    
+    <!-- زرار الخروج -->
+    <button onclick="doLogout()" style="background: none; border: none; color: red; cursor: pointer; text-decoration: underline; font-size: 14px;">خروج</button>
+</div>
 
         <!-- بعد تسجيل الدخول -->
-        <div id="userArea" class="user-area" hidden style="display:none;">
-          <div class="user-avatar-wrap">
-            <div class="user-initials-circle" id="userInitials">م</div>
-            <img id="userAvatar" class="user-avatar-img" src="" alt="avatar" hidden />
-          </div>
+               <!-- بعد تسجيل الدخول -->
+        <div id="userArea" class="user-area" hidden>
+          
+          <!-- الزرار الجديد بتاع المزارع حطيناه هنا 👇 -->
+          <a href="farmer-dashboard.html" class="btn btn--primary" style="background-color: #1b5e20; border-color: #1b5e20; text-decoration: none;">
+                            🌾 صفحة المزارع </a>
+
           <button class="btn btn--ghost user-name" id="btnUser">
             مرحبًا <span id="userDisplayName"></span>
           </button>
-          <button class="btn btn--danger" id="btnLogout">خروج</button>
+          <button class="btn btn--danger" id="btnLogout">تسجيل خروج</button>
         </div>
 
         <button class="cart-btn" id="btnOpenCart" aria-label="فتح السلة">

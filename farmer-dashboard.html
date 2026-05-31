@@ -1,114 +1,108 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة تحكم المزارع - سوق المزرعة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <title>لوحة المزارع</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/all.css">
     <style>
-         /* body { background: #f4f7f6; color: #1a202c; } */
+        body { background: #f4f7f6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        
+        
+       
     </style>
 </head>
 <body>
 
     <header>
-        <div class="container nav-inner">
-            <a href="index.html" class="logo"><i class="fas fa-leaf"></i> سوق المزرعة</a>
-            <nav class="nav-links">
-                <a href="index.html">الرئيسية</a>
-                <a href="products.html">المتجر</a>
-                <a href="#" onclick="doLogout()">خروج</a>
-            </nav>
+        <div class="container header-inner">
+            <h2 style="color: #2e7d32;">سوق المزرعة</h2>
+            <button onclick="window.location.href='index.html'" style="padding: 8px 15px; cursor: pointer; border: 1px solid #ccc; background: white; border-radius: 5px;">← العودة للرئيسية</button>
         </div>
     </header>
 
-    <main class="container">
-        <!-- ترحيب باسم المزارع -->
-        <h1 style="margin-top: 30px;">لوحة تحكم: <span id="farmerName" style="color:#2e7d32;">المزارع</span></h1>
+    <div class="container">
+        <div class="profile-area">
+            <div class="avatar" id="profileAvatar">م</div>
+            <div class="farmer-name" id="profileName">اسم المزارع</div>
+            <p style="color: #666; font-size: 14px;">حساب مزارع معتمد</p>
+        </div>
 
         <!-- الإحصائيات -->
         <div class="stats-grid">
-            <div class="stat-card"><h3 id="farmCount">0</h3><p>مزارعي</p></div>
-            <div class="stat-card"><h3 id="productCount">0</h3><p>منتجاتي المعروضة</p></div>
-            <div class="stat-card"><h3>28</h3><p>طلبات بيع</p></div>
-            <div class="stat-card"><h3>12,450</h3><p>الأرباح (ج.م)</p></div>
+            <div class="stat-card"><h3 id="countFarms">0</h3><p>مزارعي</p></div>
+            <div class="stat-card"><h3 id="countCrops">0</h3><p>محاصيلي بالأسواق</p></div>
         </div>
 
-        <!-- قسم مزارعي -->
+        <!-- قسم المزارع -->
         <div class="section-header">
-            <h2>مزارعي الخاصة</h2>
-            <button class="btn-add" onclick="alert('قريباً: إضافة مزرعة جديدة')">+ إضافة مزرعة</button>
+            <h2>مزارعي</h2>
+            <button class="btn-add" onclick="document.getElementById('farmModal').style.display='flex'">+ إضافة مزرعة</button>
         </div>
-        <div class="cards-grid" id="farmerFarmsGrid">
-            <!-- سيتم الرسم بالجافاسكريبت -->
-        </div>
+        <div class="grid-cards" id="farmsGrid"></div>
 
-        <!-- قسم منتجاتي -->
+        <!-- قسم المحاصيل -->
         <div class="section-header">
-            <h2>منتجاتي المعروضة للبيع</h2>
-            <button class="btn-add" onclick="alert('قريباً: إضافة محصول للبيع')">+ إضافة محصول</button>
+            <h2>محاصيلي المعروضة للبيع</h2>
+            <button class="btn-add" onclick="document.getElementById('cropModal').style.display='flex'">+ إضافة محصول للسوق</button>
         </div>
-        <div class="cards-grid" id="farmerProductsGrid">
-            <!-- سيتم الرسم بالجافاسكريبت -->
+        <div class="grid-cards" id="cropsGrid"></div>
+    </div>
+
+    <!-- نافذة إضافة مزرعة -->
+    <div class="modal" id="farmModal">
+        <div class="modal-box">
+            <button onclick="this.parentElement.parentElement.style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; color:red; font-size:20px; cursor:pointer;">✖</button>
+            <h3 style="color:#2e7d32; margin-bottom:15px;">إضافة مزرعة جديدة</h3>
+            <input type="text" id="farmName" placeholder="اسم المزرعة (مثال: مزرعة الأمل)">
+            <input type="text" id="farmLocation" placeholder="الموقع (مثال: الشرقية - فاقوس)">
+            <button class="btn-add" style="width:100%;" onclick="saveFarm()">حفظ المزرعة</button>
         </div>
-    </main>
+    </div>
 
-    <script src="app.js"></script>
-    <script>
-        function loadFarmerDashboard() {
-            var currentUser = JSON.parse(localStorage.getItem("currentUser"));
-            
-        
-            
-            document.getElementById("farmerName").innerText = currentUser.name;
+    <!-- نافذة إضافة محصول للسوق -->
+    <div class="modal" id="cropModal">
+        <div class="modal-box">
+            <button onclick="this.parentElement.parentElement.style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; color:red; font-size:20px; cursor:pointer;">✖</button>
+            <h3 style="color:#2e7d32; margin-bottom:15px;">إضافة محصول وعرضه بالسوق</h3>
+            <input type="text" id="cropName" placeholder="اسم المحصول (مثال: عنب أحمر)">
+            <input type="number" id="cropPrice" placeholder="السعر بالجنيه (مثال: 40)">
+            <select id="cropCategory">
+                <option value="خضروات">خضروات</option>
+                <option value="فاكهة">فاكهة</option>
+                <option value="حبوب">حبوب</option>
+            </select>
+            <input type="text" id="cropImg" placeholder="رابط صورة المحصول (اختياري)">
+            <button class="btn-add" style="width:100%;" onclick="saveCrop()">نشر في السوق</button>
+        </div>
+    </div>
 
-         
-            var allProducts = PRODUCTS; // PRODUCTS معرفة في app.js
-            var myProducts = [];
-            
-            for(var i=0; i<allProducts.length; i++) {
-                if(i % 2 === 0) myProducts.push(allProducts[i]);
-            }
+    
 
-            // 3. رسم المنتجات
-            var pGrid = document.getElementById("farmerProductsGrid");
-            var pHtml = "";
-            for(var j=0; j<myProducts.push.length; j++) {
-                var p = myProducts[j];
-                if(!p) continue;
-                pHtml += '<div class="crop-card">' +
-                            '<img src="'+p.img+'">' +
-                            '<div class="crop-details">' +
-                                '<h4>'+p.name+'</h4>' +
-                                '<p>السعر: '+p.price+' ج.م</p>' +
-                                '<p style="color:green">الحالة: معروض للبيع</p>' +
-                            '</div>' +
-                         '</div>';
-            }
-            pGrid.innerHTML = pHtml;
-            document.getElementById("productCount").innerText = myProducts.length;
 
-            // 4. رسم مزارع وهمية (لأننا لم ننشئ مصفوفة مزارع بعد)
-            var fGrid = document.getElementById("farmerFarmsGrid");
-            fGrid.innerHTML = `
-                <div class="farm-card">
-                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400" class="farm-img">
-                    <div class="farm-info">
-                        <h4>مزرعة النخيل الجديدة</h4>
-                        <p>الشرقية - بلبيس</p>
-                        <p style="font-size:12px; margin-top:5px;">المساحة: 5 فدان</p>
-                    </div>
-                </div>
-            `;
-            document.getElementById("farmCount").innerText = "1";
-        }
 
-        window.onload = function() {
-            loadFarmerDashboard();
-        }
-    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src="js/farmer-dashboard.js"></script>
     <script src="js/script.js"></script>
-    <script src="js/products-page.js"></script>
+    <script src="js/auth.js"></script>
+
+   
 </body>
 </html>
