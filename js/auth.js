@@ -270,35 +270,64 @@ function applySessionUI() {
   const name  = localStorage.getItem('userName');
   const token = localStorage.getItem('authToken');
   const photo = localStorage.getItem('userPhoto');
+  const role  = localStorage.getItem('userRole') || ''; // بنقرأ الـ Role اللي الباك إند بعته
 
   const authButtons = document.getElementById('authButtons');
   const userArea    = document.getElementById('userArea');
   const userDisplay = document.getElementById('userDisplayName');
   const userAvatar  = document.getElementById('userAvatar');
+  const initialsEl  = document.getElementById('userInitials');
+  const dashLink    = document.getElementById('dashboardLink'); // الزرار الجديد
 
   if (!authButtons) return;
 
   if (token && name) {
-    authButtons.hidden = false;
-    authButtons.style.display = 'none'; // إخفاء فعلي
+    // إخفاء زراير الدخول
+    authButtons.hidden = true;
+    authButtons.style.display = 'none'; 
+    
+    // إظهار منطقة اليوزر
     userArea.hidden = false;
     userArea.style.display = 'flex';
-    if (userDisplay) userDisplay.textContent = name;
-    if (userAvatar) {
-      if (photo) {
+
+    // === 🌟 تحديد نوع الحساب (مزارع أم تاجر) 🌟 ===
+    let roleAr = "";
+    if (role.toLowerCase() === "trader") {
+        roleAr = "تاجر";
+        if(dashLink) {
+            dashLink.textContent = "لوحة التاجر";
+            dashLink.href = "trader-dashboard.html";
+        }
+    } else { // الافتراضي مزارع
+        roleAr = "مزارع";
+        if(dashLink) {
+            dashLink.textContent = "لوحة المزارع";
+            dashLink.href = "farmer-dashboard.html";
+        }
+    }
+
+    // كتابة الاسم وبجانبه النوع (مثال: أحمد ماهر - مزارع)
+    if (userDisplay) {
+        userDisplay.textContent = name + " (" + roleAr + ")";
+    }
+
+    // معالجة صورة البروفايل أو الحرف الأول
+    if (userAvatar && initialsEl) {
+      if (photo && photo !== "null" && photo !== "") {
         userAvatar.src = photo;
         userAvatar.hidden = false;
+        initialsEl.hidden = true; // نخفي الحرف لو فيه صورة
       } else {
-        // أول حرف من الاسم كـ placeholder
         userAvatar.hidden = true;
+        initialsEl.hidden = false; // نظهر الحرف لو مفيش صورة
+        initialsEl.textContent = name.charAt(0).toUpperCase();
       }
-      // أول حرف دايماً في الـ initials
-      const initialsEl = document.getElementById('userInitials');
-      if (initialsEl) initialsEl.textContent = name.charAt(0).toUpperCase();
     }
+
   } else {
+    // لو مش مسجل دخول
     authButtons.hidden = false;
-    authButtons.style.display = '';
+    authButtons.style.display = 'flex';
     userArea.hidden = true;
     userArea.style.display = 'none';
   }
@@ -553,24 +582,32 @@ document.addEventListener('DOMContentLoaded', () => {
     ?.addEventListener('click', handleLogout);
 });
 // //////////////////////////////////////////////////////////
-function syncAuthUI() {
-  const user = getAuth(); // بتجيب اليوزر من الذاكرة
-  
-  const authButtons = document.getElementById("authButtons");
-  const userArea = document.getElementById("userArea"); // ده الـ ID الصح بتاعك
-  const userDisplayName = document.getElementById("userDisplayName");
 
-  if (user) {
-    // لو مسجل دخول: نخفي زراير اللوجين ونظهر منطقة اليوزر (اللي جواها زرار المزارع)
-    if (authButtons) authButtons.hidden = true;
-    if (userArea) userArea.hidden = false;
-    if (userDisplayName) userDisplayName.textContent = user.username;
-  } else {
-    // لو مش مسجل دخول: نظهر زراير اللوجين ونخفي منطقة اليوزر
-    if (authButtons) authButtons.hidden = false;
-    if (userArea) userArea.hidden = true;
-  }
-}
+
+// ====== التهيئة عند فتح الصفحة ======
+applySessionUI(); 
+
+// renderPaymentMethods();
+// renderCheckout();
+// attachPaymentChange();
+// function syncAuthUI() {
+//   const user = getAuth(); // بتجيب اليوزر من الذاكرة
+  
+//   const authButtons = document.getElementById("authButtons");
+//   const userArea = document.getElementById("userArea"); // ده الـ ID الصح بتاعك
+//   const userDisplayName = document.getElementById("userDisplayName");
+
+//   if (user) {
+//     // لو مسجل دخول: نخفي زراير اللوجين ونظهر منطقة اليوزر (اللي جواها زرار المزارع)
+//     if (authButtons) authButtons.hidden = true;
+//     if (userArea) userArea.hidden = false;
+//     if (userDisplayName) userDisplayName.textContent = user.username;
+//   } else {
+//     // لو مش مسجل دخول: نظهر زراير اللوجين ونخفي منطقة اليوزر
+//     if (authButtons) authButtons.hidden = false;
+//     if (userArea) userArea.hidden = true;
+//   }
+// }
 
 
 

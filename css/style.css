@@ -1002,8 +1002,8 @@ padding-top: 30px;
         /* .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; } */
 
         /* Navbar العلوي */
-       header { background: white; padding: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .header-inner { display: flex; justify-content: space-between; align-items: center; }
+       /* header { background: white; padding: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; } */
         
         .profile-area { display: flex; flex-direction: column; align-items: center; margin-top: 30px; margin-bottom: 30px; }
         .avatar { width: 80px; height: 80px; background: #2e7d32; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; font-weight: bold; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); text-transform: uppercase; }
@@ -1032,4 +1032,33 @@ padding-top: 30px;
           text-decoration: none;
           color: white;
         }
+        /* ////////////////////////////////////////////////// */
+        /* 1. خلفية شفافة ورا النوافذ */
+  .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
+      /* .modal--auth { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 10px; width: 400px; max-width: 90%; z-index: 2000; } */
+      .modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+      /* .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: red; } */
+      /* الإخفاء الإجباري */
+      [hidden] { display: none !important; }
+ 
+ 
+      .modal--auth { 
+    position: fixed; 
+    margin-left: 50%;
+    margin-top: 25%;
+    /* top: 50%; left: 50%; transform: translate(-50%, -50%);  */
+    background: white; padding: 25px; border-radius: 12px; 
+    width: 550px; /* عرضناها عشان تكفي البيانات */
+    max-width: 95%; max-height: 90vh; overflow-y: auto; /* عشان لو الشاشة صغيرة يعمل سكرول */
+    z-index: 2000; 
+}
+
+/* 3. نافذة السلة (تفتح كشريط جانبي يمين الشاشة مش في النص) */
+.cart-sidebar { 
+    position: fixed; top: 0; right: 0; width: 350px; max-width: 100%; height: 100vh; 
+    background: white; z-index: 3000; display: flex; flex-direction: column; 
+    box-shadow: -2px 0 15px rgba(0,0,0,0.15); 
+}
+
+/* إخفاء إجباري لأي حاجة واخدة hidden */
 
