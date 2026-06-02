@@ -1,3 +1,5 @@
+
+
 // ==========================================
 // 1. المفاتيح والبيانات الأساسية
 // ==========================================
@@ -34,7 +36,11 @@ for (let i = 0; i < PRODUCTS.length; i++) {
 // 2. دوال مساعدة (Helpers)
 // ==========================================
 function getAuth() { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; }
-function isLoggedIn() { return getAuth() !== null; }
+// بتشيك هل في داتا مسجلة لليوزر ولا لأ
+function isLoggedIn() {
+  const user = localStorage.getItem("demo_user"); // تأكد إن ده نفس المفتاح اللي بتحفظ بيه وقت الـ Login
+  return user !== null && user !== "";
+}
 function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
 function setUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
 function getCart() { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; }
@@ -101,6 +107,94 @@ window.closeCart = function() {
 // ==========================================
 // 4. تحديث واجهة المستخدم (تغيير الأزرار والأسماء)
 // ==========================================
+// 1. الدالة المحصنة لقراءة المستخدم من الذاكرة
+function getAuth() {
+    try {
+        const raw = localStorage.getItem("demo_user");
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        // لو الداتا اللي في الذاكرة بايظة، امسحها ورجع null عشان الكود ميعلقش
+        localStorage.removeItem("demo_user");
+        return null;
+    }
+}
+
+function isLoggedIn() {
+    return getAuth() !== null;
+}
+
+// -----------------------------------------------------
+
+// 2. دالة تحديث الهيدر (عشان الاسم يفضل ثابت في كل الصفحات)
+function syncAuthUI() {
+    const user = getAuth(); // بنستخدم الدالة المحصنة
+    
+    const authButtons = document.getElementById("authButtons");
+    const userArea = document.getElementById("userArea"); 
+    const userDisplayName = document.getElementById("userDisplayName");
+
+    if (user) {
+        // العميل مسجل دخول
+        if (authButtons) authButtons.hidden = true;
+        if (userArea) userArea.hidden = false;
+        
+        let fName = user.first_name || user.firstName || user.username || "مستخدم";
+        let roleAr = (user.role === "trader") ? "تاجر" : "مزارع";
+
+        if (userDisplayName) {
+            userDisplayName.textContent = fName + " (" + roleAr + ")";
+        }
+    } else {
+        // العميل مش مسجل دخول
+        if (authButtons) authButtons.hidden = false;
+        if (userArea) userArea.hidden = true;
+    }
+}
+
+// -----------------------------------------------------
+
+// 3. دالة السلة (بـ الفرامل الإجبارية المحصنة)
+function addToCartCore(productId) {
+    // الفرامل: هل المستخدم مسجل؟
+    if (!isLoggedIn()) {
+        const loginBackdrop = document.getElementById("loginBackdrop");
+        const loginModal = document.getElementById("loginModal");
+        const loginError = document.getElementById("loginError");
+
+        if (loginBackdrop) loginBackdrop.hidden = false;
+        if (loginModal) loginModal.hidden = false;
+        
+        if (loginError) {
+            loginError.hidden = false;
+            loginError.textContent = "يجب تسجيل الدخول أولاً لإضافة منتجات للسلة!";
+        }
+        return; // 🛑 الكلمة دي بتوقف الإضافة للسلة 🛑
+    }
+
+    // لو مسجل دخول، كمل الإضافة
+    const cart = getCart();
+    cart[productId] = (cart[productId] || 0) + 1;
+    setCart(cart);
+    
+    updateCartBadge(); // تحديث رقم السلة
+    
+    // إظهار الإشعار الأخضر
+    // لازم تتأكد إن byId متعرفة عندك في الكود أو تستخدم PRODUCTS.find
+    let pName = "المنتج";
+    if (typeof byId !== "undefined" && byId[Number(productId)]) {
+        pName = byId[Number(productId)].name;
+    } else if (typeof byId !== "undefined" && byId.get && byId.get(Number(productId))) {
+        pName = byId.get(Number(productId)).name;
+    }
+    
+    if (typeof showAddedToast === "function") {
+        showAddedToast("تمت إضافة: " + pName);
+    }
+}
+
+
+
+
 window.syncAuthUI = function() {
     const user = getAuth(); 
     const authButtons = document.getElementById("authButtons");
@@ -133,6 +227,34 @@ window.syncAuthUI = function() {
 
 
 };
+// function syncAuthUI() {
+//   // 1. بنقرأ بيانات اليوزر من الذاكرة
+//   const rawUser = localStorage.getItem("demo_user"); // تأكد إن ده اسم الـ Key بتاعك
+//   const user = rawUser ? JSON.parse(rawUser) : null;
+  
+//   const authButtons = document.getElementById("authButtons");
+//   const userArea = document.getElementById("userArea"); 
+//   const userDisplayName = document.getElementById("userDisplayName");
+
+//   if (user) {
+//     // لو مسجل دخول: اخفي زراير اللوجين واظهر منطقة اليوزر
+//     if (authButtons) authButtons.hidden = true;
+//     if (userArea) userArea.hidden = false;
+    
+//     // بنجيب الاسم (سواء متسجل باسم first_name أو username)
+//     let fName = user.first_name || user.username || "مستخدم";
+//     let roleAr = (user.role === "trader") ? "تاجر" : "مزارع";
+
+//     // بنكتب الاسم وجنبه النوع
+//     if (userDisplayName) {
+//         userDisplayName.textContent = fName + " (" + roleAr + ")";
+//     }
+//   } else {
+//     // لو مش مسجل دخول: أظهر زراير اللوجين
+//     if (authButtons) authButtons.hidden = false;
+//     if (userArea) userArea.hidden = true;
+//   }
+// }
 
 // ==========================================
 // 5. نظام السلة
@@ -229,6 +351,39 @@ window.addToCartCore = function(productId) {
     }
 };
 
+
+// function addToCartCore(productId) {
+//   // 1. الفرامل: لو مش مسجل دخول، افتح اللوجين ووقف الكود فوراً!
+//   const rawUser = localStorage.getItem("demo_user");
+//   if (!rawUser) {
+//       const loginBackdrop = document.getElementById("loginBackdrop");
+//       const loginModal = document.getElementById("loginModal");
+//       const loginError = document.getElementById("loginError");
+
+//       if (loginBackdrop) loginBackdrop.hidden = false;
+//       if (loginModal) loginModal.hidden = false;
+      
+//       if (loginError) {
+//           loginError.hidden = false;
+//           loginError.textContent = "يجب تسجيل الدخول أولاً لإضافة منتجات للسلة!";
+//       }
+      
+//       return; // 🛑 الكلمة دي هي اللي بتمنع المنتج ينزل في السلة!
+//   }
+
+//   // 2. لو مسجل دخول، كمل إضافة المنتج للسلة عادي
+//   const cart = getCart();
+//   cart[productId] = (cart[productId] || 0) + 1;
+//   setCart(cart);
+  
+//   updateCartBadge(); // تحديث العداد اللي فوق السلة
+  
+//   // إظهار الإشعار الأخضر
+//   const p = byId.get(Number(productId)) || byId[Number(productId)];
+//   if (typeof showAddedToast === "function") {
+//       showAddedToast(p ? ("تمت إضافة: " + p.name) : "تمت الإضافة للسلة");
+//   }
+// }
 // ==========================================
 // 6. رسم المنتجات
 // ==========================================
@@ -343,4 +498,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if(document.getElementById("productsGrid")) {
         window.renderProducts(PRODUCTS);
     }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    syncAuthUI(); // ده السطر اللي بيرجع اسمك لما تعمل ريفريش!
+    // وهنا باقي أكوادك العادية زي initProducts و updateCartBadge
 });

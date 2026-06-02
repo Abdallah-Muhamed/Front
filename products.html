@@ -11,14 +11,10 @@
 </head>
 
 <body>
-<header class="topbar">
+ <header class="topbar">
     <div class="container topbar__inner">
       <div class="brand">
-        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="#" width="220" height="80"></a></div>
-        <div class="brand__text">
-          <div class="brand__name">الخضار</div>
-          <div class="brand__sub">من المزرعة</div>
-        </div>
+        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
       </div>
 
       <div class="search">
@@ -26,26 +22,26 @@
       </div>
 
       <nav class="actions">
-        <!-- افتراضيًا يظهر Login/Register -->
+        <!-- أزرار الزوار -->
         <div id="authButtons" class="auth-buttons">
-          <button class="btn btn--ghost" id="btnLoginOpen">login</button>
-          <button class="btn btn--primary" id="btnRegisterOpen">register</button>
+          <button class="btn btn--ghost" id="btnLoginOpen">تسجيل دخول</button>
+          <button class="btn btn--primary" id="btnRegisterOpen">حساب جديد</button>
         </div>
 
-        <!-- بعد تسجيل الدخول -->
-        <div id="userArea" class="user-area" hidden style="display:none;">
-          <div class="user-avatar-wrap">
-            <div class="user-initials-circle" id="userInitials">م</div>
-            <img id="userAvatar" class="user-avatar-img" src="" alt="avatar" hidden />
-          </div>
-          <button class="btn btn--ghost user-name" id="btnUser">
-            مرحبًا <span id="userDisplayName"></span>
+        <!-- منطقة المستخدم (تظهر بعد الدخول) -->
+        <div id="userArea" class="user-area" hidden>
+          <a href="#" id="dashboardLink" class="btn btn--primary" style="text-decoration:none;">لوحة المزارع</a>
+            <div class="user-avatar-wrap">
+              <span id="userInitials" class="user-initials-circle"></span>
+            </div>
+            <span id="userDisplayName">مرحباً</span>
           </button>
           <button class="btn btn--danger" id="btnLogout">خروج</button>
         </div>
 
-        <button class="cart-btn" id="btnOpenCart" aria-label="فتح السلة">
-          🛍️ <span class="cart-badge" id="cartBadge">0</span>
+        <!-- زر السلة -->
+        <button class="cart-btn" id="btnOpenCart">
+          🛒 <span class="cart-badge" id="cartBadge">0</span>
         </button>
       </nav>
     </div>
@@ -115,7 +111,8 @@
 </div>
 
 <!-- Auth Modal -->
- <div class="modal-backdrop" id="loginBackdrop" hidden></div>
+   <!-- Login Modal -->
+<div class="modal-backdrop" id="loginBackdrop" hidden></div>
 <div class="modal modal--auth" id="loginModal" hidden>
   <div class="modal__header">
     <h3>تسجيل الدخول</h3>
@@ -149,20 +146,18 @@
     <div id="registerError" class="auth-error" hidden></div>
 
     <form id="registerForm" class="auth-form">
-      <div style="display:flex;gap:10px;">
-        <div style="flex:1;">
-          <!-- صورة البروفايل (اختيارية) -->
+
+      <!-- صورة البروفايل (اختيارية) -->
       <div class="avatar-upload">
         <div class="avatar-preview" id="avatarPreview">
           <span class="avatar-placeholder">📷</span>
         </div>
-        <label class="avatar-upload-btn" for="profilePhotoInput">
-          اختر صورة (اختياري)
-        </label>
+        <label class="avatar-upload-btn" for="profilePhotoInput">اختر صورة (اختياري)</label>
         <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" hidden />
         <span class="avatar-hint">JPG, PNG — حجم أقصى 5MB</span>
       </div>
 
+      <!-- الاسم -->
       <div style="display:flex; gap:10px;">
         <div style="flex:1;">
           <label>الاسم الأول</label>
@@ -180,13 +175,20 @@
       <label>رقم الهاتف</label>
       <input name="phone" required type="tel" placeholder="مثال: 01012345678" />
 
-      <label>العنوان</label>
-      <input name="address_line" required placeholder="مثال: شارع النصر، رقم 5" />
+      <!-- الموقع — auto-fill من GPS ويمكن تعديله يدوياً -->
+      <div class="location-detect">
+        <button type="button" class="location-detect-btn" id="btnDetectLocation">📍 تحديد موقعي</button>
+        <span id="locationStatus">اضغط لتحديد موقعك تلقائياً</span>
+      </div>
 
-      <label>المدينة</label>
-      <input name="city_name" required placeholder="مثال: القاهرة" />
+      <label>المدينة / المحافظة</label>
+      <input name="city_name" id="regCity" required placeholder="مثال: القاهرة" />
 
-      <label>الدور</label>
+      <label>العنوان التفصيلي</label>
+      <input name="address_line" id="regAddress" required placeholder="مثال: شارع النصر، رقم 5" />
+
+      <!-- الدور -->
+      <label>نوع الحساب</label>
       <div class="role-picker">
         <input type="radio" name="role" id="roleFarmer" value="farmer" required>
         <label for="roleFarmer" class="role-card">
@@ -200,6 +202,7 @@
         </label>
       </div>
 
+      <!-- كلمة المرور -->
       <label>كلمة المرور</label>
       <input name="password" id="regPassword" required type="password" placeholder="••••••••" />
       <div class="password-strength" id="strengthBar">
@@ -214,6 +217,7 @@
       <span class="confirm-msg" id="confirmMsg" hidden></span>
 
       <button class="btn btn--primary" type="submit">إنشاء حساب</button>
+
     </form>
   </div>
 </div>

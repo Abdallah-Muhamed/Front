@@ -1,26 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>زرعتك </title>
-
-  
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/all.css">
- 
+    <meta charset="UTF-8">
+    <title>سوق المزرعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/all.css">
 </head>
-
 <body>
-  <!-- Navbar -->
 
+  <!-- ===================================== -->
+  <!-- 1. الهيدر -->
+  <!-- ===================================== -->
   <header class="topbar">
     <div class="container topbar__inner">
       <div class="brand">
-        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="#" width="220" height="80"></a></div>
-        <div class="brand__text">
-          
-        </div>
+        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
       </div>
 
       <div class="search">
@@ -28,205 +24,83 @@
       </div>
 
       <nav class="actions">
-        
-        
-        <!-- افتراضيًا يظهر Login/Register -->
+        <!-- أزرار الزوار -->
         <div id="authButtons" class="auth-buttons">
-          <button class="btn btn--ghost" id="btnLoginOpen">login</button>
-          <button class="btn btn--primary" id="btnRegisterOpen">register</button>
+          <button class="btn btn--ghost" id="btnLoginOpen">تسجيل دخول</button>
+          <button class="btn btn--primary" id="btnRegisterOpen">حساب جديد</button>
         </div>
-        <!-- منطقة المستخدم (تظهر بعد تسجيل الدخول) -->
-<div id="userProfile" style="display: none; align-items: center; gap: 15px;">
-    
-    <!-- اسم المستخدم -->
-    <span id="userNameDisplay" style="color: #2e7d32; font-weight: bold;">مرحباً</span>
-    
-    <!-- 👇 الزرار الجديد (صفحة المزارع) 👇 -->
-    <a href="farmer-dashboard.html" class="btn-farmer" style="background: #2e7d32; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px;">
-        
-    </a>
-    
-    <!-- زرار الخروج -->
-    <button onclick="doLogout()" style="background: none; border: none; color: red; cursor: pointer; text-decoration: underline; font-size: 14px;">خروج</button>
-</div>
 
-        <!-- بعد تسجيل الدخول -->
-               <!-- بعد تسجيل الدخول -->
-        <!-- <div id="userArea" class="user-area" hidden>
-          
-          !-- الزرار الجديد بتاع المزارع حطيناه هنا 👇 --
-          <a href="farmer-dashboard.html" class="btn btn--primary" style="background-color: #1b5e20; border-color: #1b5e20; text-decoration: none;">
-                            🌾 صفحة المزارع </a>
-
-          <button class="btn btn--ghost user-name" id="btnUser">
-            مرحبًا <span id="userDisplayName"></span>
+        <!-- منطقة المستخدم (تظهر بعد الدخول) -->
+        <div id="userArea" class="user-area" hidden>
+          <a href="#" id="dashboardLink" class="btn btn--primary" style="text-decoration:none;">لوحة المزارع</a>
+          <button class="btn btn--ghost user-name" id="btnUser" style="display:flex; align-items:center; gap:8px;">
+            <div class="user-avatar-wrap">
+              <span id="userInitials" class="user-initials-circle"></span>
+            </div>
+            <span id="userDisplayName">مرحباً</span>
           </button>
-          <button class="btn btn--danger" id="btnLogout">تسجيل خروج</button>
-        </div> -->
-        <!-- بعد تسجيل الدخول -->
-<div id="userArea" class="user-area" hidden>
-  
-  <!-- الزرار اللي الجافاسكريبت هيغير اسمه ورابطه حسب النوع 👇 -->
-  <a href="#" id="dashboardLink" class="btn btn--primary" style="background-color: #1b5e20; border-color: #1b5e20; text-decoration: none; padding: 10px 15px; border-radius: 5px; color: white;">
-🌾 صفحة المزارع   </a>
+          <button class="btn btn--danger" id="btnLogout">خروج</button>
+        </div>
 
-  <button class="btn btn--ghost user-name" id="btnUser" style="display: flex; align-items: center; gap: 10px;">
-    <!-- الصورة وأول حرف -->
-    <div style="position: relative;">
-      <img id="userAvatar" src="" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover;" hidden>
-      <span id="userInitials" style="width: 35px; height: 35px; border-radius: 50%; background: #2e7d32; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold;"></span>
-    </div>
-    <!-- الاسم والنوع -->
-    <span id="userDisplayName">مرحباً</span>
-  </button>
-  
-  <button class="btn btn--danger" id="btnLogout">تسجيل خروج</button>
-</div>
-
-        <button class="cart-btn" id="btnOpenCart" aria-label="فتح السلة">
-          🛍️ <span class="cart-badge" id="cartBadge">0</span>
+        <!-- زر السلة -->
+        <button class="cart-btn" id="btnOpenCart">
+          🛒 <span class="cart-badge" id="cartBadge">0</span>
         </button>
       </nav>
     </div>
   </header>
 
-  <!-- Hero -->
   <main>
+    <!-- ===================================== -->
+    <!-- 2. Hero Section -->
+    <!-- ===================================== -->
     <section class="hero">
       <div class="container hero__grid">
-        <div class="hero__image">
-          <div class="hero__imgBox">
-            <img alt="خضار" src="images/main-img.png" />
-          </div>
-        </div>
-
         <div class="hero__content">
           <h1 class="hero__title">سوق محاصيل <span>الزراعة العضوية</span></h1>
-          <p class="hero__desc">
-            اعيش أفضل محاصيل طازجة—اشترِ الآن وخليها توصل لباب بيتك.
-          </p>
-
+          <p class="hero__desc">اعيش أفضل محاصيل طازجة—اشترِ الآن وخليها توصل لباب بيتك.</p>
           <div class="hero__cta">
-            <button class="btn btn--ghost" id="btnDetails">عرض التفاصيل</button>
-            <button  id="btnShopNow">تسوق المحاصيل</button>
+            <button class="btn btn--ghost">عرض التفاصيل</button>
+            <button class="btn btn--primary" id="btnShopNow">تسوق المحاصيل</button>
           </div>
-         <section id="detailsSection" class="detailsSection" hidden>
-  <div class="container">
-    <h2 class="detailsTitle">تفاصيل عن  سوق زرعتك</h2>
-
-    <p class="detailsLead">
-      في <b>سوق محاصيل زرعتك</b> بنقدّم لك منتجات طازجة وعالية الجودة من المزرعة مباشرة—بشكل يضمن إنك تستلم قيمة حقيقية كل مرة.
-    </p>
-
-    <div class="detailsGrid">
-      <div class="detailsCard">
-        <h3>زراعة عضوية وممارسات سليمة</h3>
-        <p>
-          بنركّز على الأساليب العضوية في الزراعة قدر الإمكان، لتكون المنتجات أنضف وأقرب لطبيعتها.
-        </p>
-      </div>
-
-      <div class="detailsCard">
-        <h3>حصاد قريب من وقت الشحن</h3>
-        <p>
-          كل ما كان الحصاد قريب من وقت التجهيز، كل ما كانت النكهة والطراوة أعلى.
-        </p>
-      </div>
-
-      <div class="detailsCard">
-        <h3>اختيار وفرز قبل الإرسال</h3>
-        <p>
-          بنعمل فرز سريع لضمان جودة المنتجات قبل ما توصل لك.
-        </p>
-      </div>
-
-     
-
-      <div class="detailsCard">
-        <h3>دعم المزارعين</h3>
-        <p>
-          التعامل المباشر بيساعد المزارع ويضمن جودة أعلى للمستهلك—ده جزء من فلسفتنا.
-        </p>
-      </div>
-
-      <div class="detailsCard">
-        <h3>خدمة عملاء وتواصل</h3>
-        <p>
-          لو عندك أي استفسار عن المنتج أو الطلب، فريق الدعم موجود لمساعدتك.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+        </div>
+        <div class="hero__image">
+          <div class="hero__imgBox"><img alt="خضار" src="images/main-img.png" onerror="this.style.display='none'" /></div>
         </div>
       </div>
     </section>
 
-    <!-- /////////////////////////////////////////////// -->
+    <!-- ===================================== -->
+    <!-- 3. الأقسام -->
+    <!-- ===================================== -->
     <section>
-  <div class="section1-category">
-    <!-- عند الضغط سيفتح صفحة المنتجات ويرسل كلمة حبوب في الرابط -->
-    <div class="category" onclick="window.location.href='products.html?cat=حبوب'" style="cursor: pointer;">
-      <div class="category-icons"><img src="images/icon3.png" width="40"></div>
-      <p>حبوب</p>
-    </div>
+      <div class="section1-category container" style="display:flex; justify-content:center; gap:40px;">
+        <div class="category" style="cursor: pointer;"><div class="category-icons"><img src="images/icon3.png" width="40" onerror="this.style.display='none'"></div><p>حبوب</p></div>
+        <div class="category" style="cursor: pointer;"><div class="category-icons"><img src="images/icon4.jpg" width="40" onerror="this.style.display='none'"></div><p>فواكه</p></div>
+        <div class="category" style="cursor: pointer;"><div class="category-icons"><img src="images/icon5.jpg" width="40" onerror="this.style.display='none'"></div><p>خضراوات</p></div>
+      </div>
+    </section>
 
-    <div class="category" onclick="window.location.href='products.html?cat=فاكهة'" style="cursor: pointer;">
-      <div class="category-icons"><img src="images/icon4.jpg" width="40"></div>
-      <p>فواكه</p>
-    </div>
-
-    <div class="category" onclick="window.location.href='products.html?cat=خضروات'" style="cursor: pointer;">
-      <div class="category-icons"><img src="images/icon5.jpg" width="40"></div>
-      <p>خضراوات</p>
-    </div>
-</div>
-</section>
-<!-- /////////////////////////////////////////////////// -->
-    <!-- Products -->
-     <div id="toastAdded" class="toast" hidden></div>
+    <!-- ===================================== -->
+    <!-- 4. المنتجات -->
+    <!-- ===================================== -->
     <section class="section">
       <div class="container">
         <div class="section__head">
-            <p class="more-item"><a href="products.html"><i class="fa-solid fa-arrow-left"></i>عرض كل المحاصيل</a></p>
+          <p class="more-item"><a href="products.html" style="text-decoration:none;">عرض كل المحاصيل</a></p>
           <h2>المحاصيل</h2>
           <p>اختار وكمّل بسهولة…</p>
         </div>
-
         <div class="products-grid" id="productsGrid"></div>
       </div>
     </section>
-
-
   </main>
 
-  <!-- Cart Modal -->
-  <div class="modal-backdrop" id="cartBackdrop" hidden></div>
-  <div class="modal" id="cartModal" role="dialog" aria-modal="true" hidden>
-    <div class="modal__header">
-      <h3>سلة المشتريات</h3>
-      <button class="icon-btn" id="btnCloseCart">✖</button>
-    </div>
+  <!-- ===================================== -->
+  <!-- 5. النوافذ المنبثقة والسلة -->
+  <!-- ===================================== -->
 
-    <div class="modal__body">
-      <div id="cartItems" class="cart-items"></div>
-
-      <div id="cartEmpty" class="cart-empty" hidden>
-        السلة فاضية. أضف منتجات من الصفحة.
-      </div>
-    </div>
-
-    <div class="modal__footer">
-      <div class="cart-total">
-        <span>الإجمالي:</span>
-        <strong id="cartTotalText">0</strong>
-      </div>
-      <button class="btn btn--primary" id="btnCheckout" disabled>إتمام الشراء</button>
-    </div>
-  </div>
-
- 
-  <!-- Login Modal -->
+   <!-- Login Modal -->
 <div class="modal-backdrop" id="loginBackdrop" hidden></div>
 <div class="modal modal--auth" id="loginModal" hidden>
   <div class="modal__header">
@@ -336,238 +210,31 @@
     </form>
   </div>
 </div>
-  <!-- //////////////////////////////////////////////////////////////////////// -->
-    <section>
-    <div class="features">
-        <p class="p1">لماذا تختار سوق زرعتك؟</p>
-        <div class="features-contener">
-            <div class="features-div">
 
-                <div class="icon-features">
-                    <i class="fa-regular fa-eye"></i>
-                </div><!-- icon-features-->
-                <p class="features-title"> اسعار شفافة و منافسة</p>
-                <p class="features-describtion">نظام تسعير شفاف يعتمد على عرض وطلب السوق
-الحقيقي لحظة بلحظة مع تحديثات يومية للأسعار</p>
-              
-            </div><!-- features-div-->
-            <div class="features-div">
-
-                <div class="icon-features">
-                    <i class="fa-solid fa-handshake-simple"></i>
-                </div><!-- icon-features-->
-                <p class="features-title">   بيع وشراء مباشر بدون وسطاء </p>
-                <p class="features-describtion">ربط مباشر بين المزارع والتاجر أو المستهلك النهائي لتقليل التكاليف و ضمان سعر البيع</p>
-              
-            </div><!-- features-div-->
-            <div class="features-div">
-
-                <div class="icon-features">
-                    <i class="fa-regular fa-circle-check"></i>
-                </div><!-- icon-features-->
-                <p class="features-title"> منتجات طازجة من المزارع</p>
-                <p class="features-describtion">نضمن لك وصول المحاصيل من الحقل مباشرة دون
-تخزين طويل لضمان أعلى جودة وطعم أصيل</p>
-
-              
-            </div><!-- features-div-->
-        </div><!-- features-contener-->
-    </div> <!-- features-->
-   </section>
-
-<!-- /////////////////////////////////////////////////////////////////////////// -->
-
-    <!-- ===================================== -->
-  <!-- 1. نافذة تسجيل الدخول (Login Modal) -->
-  <!-- ===================================== -->
-  <div class="modal-backdrop" id="loginBackdrop" hidden></div>
-  <div class="modal modal--auth" id="loginModal" hidden>
-    <div class="modal__header">
-      <h3>تسجيل الدخول</h3>
-      <button class="icon-btn" id="btnCloseLogin">✖️</button>
+  <!-- نافذة السلة (مفصلة على الـ CSS بتاعك) -->
+  <div class="modal-backdrop" id="cartBackdrop" hidden></div>
+  <div class="cart-sidebar" id="cartModal" hidden>
+    <div class="modal__header" style="background:#2f7d32; color:white;">
+      <h3 style="margin:0;">سلة المشتريات</h3>
+      <button class="icon-btn" id="btnCloseCart" style="color:white; border:none; background:none;">✖</button>
     </div>
-    <div class="modal__body">
-      <div id="loginError" class="auth-error" hidden style="color:red; margin-bottom:10px; font-weight:bold;"></div>
-
-      <form id="loginForm" class="auth-form">
-        <label>البريد الإلكتروني</label>
-        <input name="email" required type="email" placeholder="name@example.com" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;" />
-        
-        <label>كلمة المرور</label>
-        <input name="password" required type="password" placeholder="••••••••" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;" />
-        
-        <button class="btn btn--primary" type="submit" style="width:100%; padding:10px; background:#2e7d32; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">دخول</button>
-      </form>
+    <div class="modal__body" style="flex:1; overflow-y:auto;">
+      <div id="cartItems" class="cart-items"></div>
+      <div id="cartEmpty" class="cart-empty" hidden>السلة فاضية. أضف منتجات من الصفحة.</div>
+    </div>
+    <div class="modal__footer" style="flex-direction:column; gap:15px; background:#f9fafb;">
+      <div class="cart-total" style="display:flex; justify-content:space-between; width:100%; color:#2f7d32;">
+        <span>الإجمالي:</span><strong id="cartTotalText">0 ج.م</strong>
+      </div>
+      <button class="btn btn--primary" id="btnCheckout" style="width:100%;" disabled onclick="window.location.href='checkout.html'">إتمام الشراء</button>
     </div>
   </div>
 
-  <!-- ===================================== -->
-  <!-- 2. نافذة إنشاء حساب (Register Modal) -->
-  <!-- ===================================== -->
-  <div class="modal-backdrop" id="registerBackdrop" hidden></div>
-  <div class="modal modal--auth" id="registerModal" hidden>
-    <div class="modal__header">
-      <h3>إنشاء حساب</h3>
-      <button class="icon-btn" id="btnCloseRegister">✖️</button>
-    </div>
-    <div class="modal__body">
-      <div id="registerError" class="auth-error" hidden style="color:red; margin-bottom:10px; font-weight:bold;"></div>
+  <!-- إشعار الإضافة -->
+  <div id="toastAdded" class="toast">تمت الإضافة للسلة!</div>
 
-      <form id="registerForm" class="auth-form">
-        <label>اسم المستخدم</label>
-        <input name="username" required placeholder="مثال: Ahmed" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;" />
-        
-        <label>البريد الإلكتروني</label>
-        <input name="email" required type="email" placeholder="name@example.com" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;" />
-        
-        <label>كلمة المرور</label>
-        <input name="password" required type="password" placeholder="••••••••" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;" />
-        
-        <button class="btn btn--primary" type="submit" style="width:100%; padding:10px; background:#2e7d32; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">إنشاء حساب</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===================================== -->
-  <!-- 3. نافذة السلة (Cart Modal) -->
-  <!-- ===================================== -->
-  <!-- <div class="modal-backdrop" id="cartBackdrop" hidden></div>
-  <div class="modal" id="cartModal" hidden style="position:fixed; right:0; top:0; width:350px; height:100%; background:white; z-index:9000; box-shadow:-2px 0 10px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
-    
-    <div style="padding:20px; background:#2e7d32; color:white; display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0;">سلة المشتريات</h3>
-        <button id="btnCloseCart" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✖️</button>
-    </div>
-
-    <div id="cartItems" style="flex:1; overflow-y:auto; padding:20px;">
-        !-- المنتجات ستُرسم هنا بالجافاسكريبت --
-    </div>
-    
-    <div id="cartEmpty" hidden style="text-align:center; padding:20px; color:red; font-weight:bold;">
-        السلة فارغة حالياً.
-    </div>
-
-    <div style="padding:20px; border-top:1px solid #eee; background:#f9f9f9;">
-        <h3 style="display:flex; justify-content:space-between; margin-bottom:15px; color:#2e7d32;">الإجمالي: <span id="cartTotalText">0 ج.م</span></h3>
-        <button id="btnCheckout" class="btn btn--primary" style="width:100%; padding:12px; background:#2e7d32; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;" disabled>
-            إتمام الطلب
-        </button>
-    </div>
-  </div> -->
-
-  <!-- ===================================== -->
-  <!-- 4. إشعار إضافة المنتج (Toast) -->
-  <!-- ===================================== -->
-  <div id="toastAdded" style="visibility:hidden; opacity:0; min-width:250px; background:#2e7d32; color:white; text-align:center; border-radius:8px; padding:15px; position:fixed; z-index:9999; bottom:20px; right:20px; font-weight:bold; transition:all 0.3s ease;">
-      تمت الإضافة للسلة
-  </div>
-
-  <!-- أكواد الـ CSS الأساسية لظهور النوافذ -->
-  <!-- <style>
-      .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
-      .modal--auth { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 10px; width: 400px; max-width: 90%; z-index: 2000; }
-      .modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-      .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: red; }
-      /* الإخفاء الإجباري */
-      [hidden] { display: none !important; }
-  </style> -->
-
-  <!-- /////////////////////////////////////////////////////////////////////////////////////// -->
-   <!-- ///////////////////////////////////////////////////////////////////////////// -->
-    <!-- نافذة السلة الجانبية -->
-<div class="modal-backdrop" id="cartBackdrop" hidden></div>
-
-<div id="cartModal" class="cart-sidebar" hidden>
-    <!-- رأس السلة -->
-    <div style="padding: 20px; background: #2e7d32; color: white; display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin:0;">سلة المشتريات</h3>
-        <button id="btnCloseCart" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✖</button>
-    </div>
-
-    <!-- المنتجات -->
-    <div id="cartItems" style="flex: 1; overflow-y: auto; padding: 20px;"></div>
-    
-    <div id="cartEmpty" hidden style="text-align: center; padding: 20px; color: red; font-weight: bold;">
-        السلة فارغة حالياً.
-    </div>
-
-    <!-- الفوتر والإجمالي -->
-    <div style="padding: 20px; border-top: 1px solid #eee; background: #f9f9f9;">
-        <h3 style="display: flex; justify-content: space-between; margin-bottom: 15px; color: #2e7d32;">
-            الإجمالي: <span id="cartTotalText">0 ج.م</span>
-        </h3>
-        <button id="btnCheckout" style="width: 100%; padding: 15px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;">
-            إتمام الطلب
-        </button>
-    </div>
-</div>
-<!-- ////////////////////////////////////////////////////////////////// -->
- 
-
-
-
-
-
-<!-- ///////////////////////////////////////////////////////////////////////////////// -->
-<div class="footer">
-        <div class="links-footer">
-            <div class="search-footer">
-                <p>القائمة التقليدية</p>
-                <button><i class="fa-regular fa-paper-plane"></i></button>
-                <input type="email" placeholder="بريدك الالكتروني">
-
-            </div><!--search-footer-->
-            
-            <div class="div-links-footer">
-                <p>المساعدة</p>
-                <ul>
-                    <li></li>
-                    <li><a href="">الشروط و الحكام</a></li>
-                     <li><a href="">سياسة الخصوصية</a></li>
-                      <li><a href="">تواصل معنا</a></li>
-                </ul>
-
-            </div><!--div links footer-->
-            <div class="div-links-footer">
-                <p>الروابط</p>
-                <ul>
-                    <li></li>
-                    <li><a href="">  عن المنصة </a></li>
-                     <li><a href=""> دليل المزارع</a></li>
-                      <li><a href=""> سوق الجملة</a></li>
-                </ul>
-
-            </div><!--div links footer-->
-            <div class="logo-footer">
-                 <div class="logo footer-logo"><img src="images/logo.png" alt="#" width="220" height="80">
-                </div><!--logo-->
-                  <p>المنصة الزراعية الأولى في مصر لتمكين المزارعين
-وتوفير أجود المحاصيل الزراعية للمستهلكين
-والتجار بأسعار عادلة</p>
-                <i class="fa-solid fa-share-nodes"></i>
-                <i class="fa-solid fa-medal"></i>
-            </div><!--logo-footer-->
-                 
-             
-
-            
-
-        </div><!--links footer-->
-         <p class="line-end"></p>
-                <div class="end-end">
-                <p>
-                 &copy; 2026 Smart Farm Market Egypt - سوق المزرعة. جميع الحقوق محفوظة. 
-                </p>
-            </div>
-     </div><!-- footer-->
-
-   </footer>
-
-
- 
-
-
-  <script src="js/auth.js"></script>
   <script src="js/script.js"></script>
+   <script src="js/farmer-dashboard.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
