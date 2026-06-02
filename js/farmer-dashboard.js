@@ -1,4 +1,4 @@
-  const currentUser = JSON.parse(localStorage.getItem("demo_user"));
+//   const currentUser = JSON.parse(localStorage.getItem("demo_user"));
         if (!currentUser) {
             // alert("يجب تسجيل الدخول كـ مزارع أولاً!");
             // window.location.href = "index.html";
