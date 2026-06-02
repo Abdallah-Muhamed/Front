@@ -484,13 +484,26 @@ async function handleLogin(e) {
 // Logout
 // ─────────────────────────────────────────────
 function handleLogout() {
+  // امسح بيانات الدخول
   localStorage.removeItem("authToken");
   localStorage.removeItem("userName");
   localStorage.removeItem("userFirstName");
   localStorage.removeItem("userRole");
   localStorage.removeItem("userUid");
   localStorage.removeItem("userPhoto");
+
+  // ✅ امسح السلة عند الخروج
+  localStorage.removeItem("demo_cart");
+
   applySessionUI();
+
+  // لو script.js موجود يحدث العداد ويرندر السلة
+  if (typeof window.updateCartBadge === "function") window.updateCartBadge();
+  if (typeof window.renderCart === "function") window.renderCart();
+  if (typeof window.closeCart === "function") window.closeCart();
+
+  // Event اختياري لو انت بتسمع له
+  window.dispatchEvent(new CustomEvent("authLogout"));
 }
 
 // ─────────────────────────────────────────────
@@ -547,3 +560,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Logout
   document.getElementById("btnLogout")?.addEventListener("click", handleLogout);
 });
+
+
+
+
+
+
+
+// عشان أي ملف تاني (زي script.js) يقدر يفتح مودال اللوجين
+window.openLogin = function () {
+  openModal("loginModal", "loginBackdrop", "block");
+};
+
+window.openRegister = function () {
+  openModal("registerModal", "registerBackdrop", "block");
+};

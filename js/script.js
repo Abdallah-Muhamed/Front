@@ -143,18 +143,13 @@ window.changeQty = changeQty;
 
 // Add to cart (guarded by auth.js)
 function addToCartCore(productId) {
-  const logged =
-    (typeof window.isLoggedIn === "function" && window.isLoggedIn()) ||
-    !!localStorage.getItem("authToken"); // fallback
+  const logged = !!localStorage.getItem("authToken"); // ده اللي auth.js بيحفظه
 
   if (!logged) {
-    // افتح login modal من auth.js
+    // ✅ افتح مودال الـ Login
     if (typeof window.openLogin === "function") window.openLogin();
-    else {
-      // fallback minimal
-      document.getElementById("loginBackdrop") && (document.getElementById("loginBackdrop").hidden = false);
-      document.getElementById("loginModal") && (document.getElementById("loginModal").hidden = false);
-    }
+
+    // رسالة تنبيه جوه المودال
     const loginError = document.getElementById("loginError");
     if (loginError) {
       loginError.hidden = false;
@@ -224,4 +219,17 @@ window.addEventListener("authLogin", () => {
 });
 window.addEventListener("authLogout", () => {
   if (typeof window.applySessionUI === "function") window.applySessionUI();
+});
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".section1-category .category").forEach(el => {
+    el.addEventListener("click", () => {
+      const cat = el.dataset.cat;
+      if (!cat) return;
+      window.location.href = `products.html?cat=${encodeURIComponent(cat)}`;
+    });
+  });
 });

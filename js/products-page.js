@@ -326,6 +326,11 @@ function renderCategories() {
     btn.textContent = cat;
 
     btn.addEventListener("click", () => {
+      if (cat === "الكل") {
+  history.replaceState(null, "", "products.html");
+} else {
+  history.replaceState(null, "", `products.html?cat=${encodeURIComponent(cat)}`);
+}
       state.category = cat;
       state.page = 1;
       renderCategories();
@@ -450,24 +455,24 @@ if (searchInput) {
 
 
 // 1. دالة لقراءة الكلمة المرسلة في الرابط (مثلاً ?cat=خضروات)
-function getCategoryFromURL() {
-    var params = new URLSearchParams(window.location.search);
-    return params.get('cat'); // ستعيد كلمة "خضروات" أو "فاكهة" إلخ..
-}
+// function getCategoryFromURL() {
+//     var params = new URLSearchParams(window.location.search);
+//     return params.get('cat'); // ستعيد كلمة "خضروات" أو "فاكهة" إلخ..
+// }
 
 // 2. تعديل دالة التشغيل عند فتح الصفحة
-window.onload = function() {
-    var categoryFromLink = getCategoryFromURL();
+// window.onload = function() {
+//     var categoryFromLink = getCategoryFromURL();
 
-    if (categoryFromLink) {
-        // لو وجدنا تصنيف في الرابط، نقوم بفلترة المنتجات فوراً
-        console.log("عرض منتجات قسم: " + categoryFromLink);
-        filterByCategory(categoryFromLink); 
-    } else {
-        // لو مفيش تصنيف (يعني فتح الصفحة عادي)، يعرض الكل
-        renderProducts(); 
-    }
-};
+//     if (categoryFromLink) {
+//         // لو وجدنا تصنيف في الرابط، نقوم بفلترة المنتجات فوراً
+//         console.log("عرض منتجات قسم: " + categoryFromLink);
+//         filterByCategory(categoryFromLink); 
+//     } else {
+//         // لو مفيش تصنيف (يعني فتح الصفحة عادي)، يعرض الكل
+//         renderProducts(); 
+//     }
+// };
 
 
 
@@ -504,8 +509,36 @@ function filterByCategory(catName) {
     grid.innerHTML = html;
 }
 
-// Init
-syncAuthUI();
-updateCartBadge();
-renderCategories();
-renderProducts()
+document.addEventListener("DOMContentLoaded", () => {
+  syncAuthUI();
+  updateCartBadge();
+  renderCategories();
+
+  const cat = new URLSearchParams(window.location.search).get("cat");
+  if (cat && categories.includes(cat)) {
+    state.category = cat;
+    state.page = 1;
+  }
+
+  renderProducts();
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  syncAuthUI();
+  updateCartBadge();
+
+  // اقرأ التصنيف من الرابط
+  const urlCat = new URLSearchParams(window.location.search).get("cat");
+
+  // لازم categories تكون اتبنت (وهي اتبنت فوق من PRODUCTS)
+  if (urlCat && categories.includes(urlCat)) {
+    state.category = urlCat;
+    state.page = 1;
+  } else {
+    state.category = "الكل";
+  }
+
+  renderCategories(); // دي هتعمل Active صح
+  renderProducts();   // دي هتفلتر حسب state.category
+});

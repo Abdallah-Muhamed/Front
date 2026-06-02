@@ -218,7 +218,8 @@ body{
     /* /////////////////////////////////////////////////////////////// */
     .section1-category{
     width: 100%;
-    height: 200px;
+    height: 200px; 
+    /* margin-right: 10px; */
     /* margin: auto; */
     /* margin: 0px  auto 150px; */
     margin-bottom: 100px;
@@ -227,8 +228,11 @@ body{
 .category{
     width: 6%;
     text-align: center;
-    margin-left: 21%;
+    margin-left: 20%;
     float: left;
+}
+.help{
+  margin-right: 20%;
 }
 .category-icons{
     border-radius: 40%;
