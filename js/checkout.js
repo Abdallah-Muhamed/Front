@@ -1,233 +1,42 @@
-// =====================
-// Storage Keys
-// =====================
-const AUTH_KEY = "demo_user";
-const USERS_KEY = "demo_users";
-const CART_KEY = "demo_cart";
+"use strict";
 
-// =====================
-// Products (Demo)
-/// =====================
-const PRODUCTS = [
-  { id: 1, name: "قمح (كيلو)", price: 25, category: "حبوب", img: "images/item1 (1).jpg" },
-  { id: 2, name: "بطاطس (كيلو)", price: 20, category: "خضروات", img: "images/item5.jpg" },
-  { id: 3, name: "طماطم (كيلو)", price: 30, category: "خضروات", img: "images/item2.jpg" },
-  { id: 4, name: "عنّب أسود (كيلو)", price: 55, category: "فاكهة", img: "images/item4.jpg" },
-  { id: 5, name: "فراولة (باكيت)", price: 45, category: "فاكهة", img: "images/item6.jpg" },
-  { id: 6, name: "ذرة صفراء (كيلو)", price: 35, category: "خضروات", img: "images/item3.jpg" },
+const api = () => window.SmartFarmApi;
 
-  { id: 7, name: "بصل أحمر (كيلو)", price: 28, rating: 4.6, category: "خضروات", img: "images/item9.jpg" },
-  { id: 8, name: "ثوم (رأس)", price: 18, rating: 4.4, category: "خضروات", img: "images/item7.jpg" },
-  { id: 9, name: "جزر (كيلو)", price: 22, rating: 4.7, category: "خضروات", img: "images/item11.jpg" },
-  { id: 10, name: "خيار (قطعة)", price: 12, rating: 4.3, category: "خضروات", img: "images/item12.jpg" },
-  { id: 11, name: "موز (قطعة)", price: 15, rating: 4.8, category: "فاكهة", img: "images/item10.jpg" },
-  { id: 12, name: "برقوق (كيلو)", price: 60, rating: 4.5, category: "فاكهة", img: "images/item8.jpg" },
-];
+let byId = new Map();
 
-const byId = new Map(PRODUCTS.map((p) => [p.id, p]));
-
-// =====================
-// DOM Helper
-// =====================
 const $ = (sel) => document.querySelector(sel);
 
-// =====================
-// Storage Helpers
-// =====================
-function getAuth() {
-  const raw = localStorage.getItem(AUTH_KEY);
-  return raw ? JSON.parse(raw) : null;
-}
-function clearAuth() {
-  localStorage.removeItem(AUTH_KEY);
-}
-function getUsers() {
-  const raw = localStorage.getItem(USERS_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-function setUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
 function getCart() {
-  const raw = localStorage.getItem(CART_KEY);
-  return raw ? JSON.parse(raw) : {};
+  return api().getCart();
 }
 function setCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  api().setCart(cart);
 }
-
-// =====================
-// Money / Cart Helpers
-// =====================
 function formatMoney(n) {
-  return (Number(n) || 0) + " ج.م";
+  return api().formatMoney(n);
 }
 function cartCount(cart) {
-  return Object.values(cart).reduce((s, q) => s + (Number(q) || 0), 0);
+  return api().cartCount(cart);
 }
 function cartTotal(cart) {
-  let total = 0;
-  for (const [pidStr, qty] of Object.entries(cart)) {
-    const pid = Number(pidStr);
-    const p = byId.get(pid);
-    if (!p) continue;
-    total += p.price * (Number(qty) || 0);
-  }
-  return total;
+  return api().cartTotal(cart, byId);
 }
 
-// =====================
-// Navbar Auth UI (اختياري لو موجود)
-/// =====================
-const authButtons = $("#authButtons");
-const userArea = $("#userArea");
-const userDisplayName = $("#userDisplayName");
-const btnLogout = $("#btnLogout");
-
-const loginBackdrop = $("#loginBackdrop");
-const loginModal = $("#loginModal");
-const registerBackdrop = $("#registerBackdrop");
-const registerModal = $("#registerModal");
-
-const btnCloseLogin = $("#btnCloseLogin");
-const btnCloseRegister = $("#btnCloseRegister");
-const btnLoginOpen = $("#btnLoginOpen");
-const btnRegisterOpen = $("#btnRegisterOpen");
-
-const loginForm = $("#loginForm");
-const registerForm = $("#registerForm");
-const loginError = $("#loginError");
-const registerError = $("#registerError");
-
-let openLogin = () => {};
-function syncAuthUI() {
-  const user = getAuth();
-  if (authButtons) authButtons.hidden = !!user;
-  if (userArea) userArea.hidden = !user;
-  if (userDisplayName) userDisplayName.textContent = user ? user.username : "";
+function requireLogin() {
+  if (api().isLoggedIn()) return true;
+  alert("يجب تسجيل الدخول لإتمام الطلب.");
+  window.location.href = "index.html";
+  return false;
 }
 
-function showLogin(msg) {
-  if (loginError) {
-    loginError.hidden = false;
-    loginError.textContent = msg;
-  }
-}
-
-function openLoginImpl() {
-  if (loginError) {
-    loginError.hidden = true;
-    loginError.textContent = "";
-  }
-  if (loginBackdrop) loginBackdrop.hidden = false;
-  if (loginModal) loginModal.hidden = false;
-}
-function closeLoginImpl() {
-  if (loginBackdrop) loginBackdrop.hidden = true;
-  if (loginModal) loginModal.hidden = true;
-}
-openLogin = openLoginImpl;
-
-function openRegister() {
-  if (registerError) {
-    registerError.hidden = true;
-    registerError.textContent = "";
-  }
-  if (registerBackdrop) registerBackdrop.hidden = false;
-  if (registerModal) registerModal.hidden = false;
-}
-function closeRegister() {
-  if (registerBackdrop) registerBackdrop.hidden = true;
-  if (registerModal) registerModal.hidden = true;
-}
-
-btnLoginOpen?.addEventListener("click", openLoginImpl);
-btnRegisterOpen?.addEventListener("click", openRegister);
-btnCloseLogin?.addEventListener("click", closeLoginImpl);
-btnCloseRegister?.addEventListener("click", closeRegister);
-loginBackdrop?.addEventListener("click", closeLoginImpl);
-registerBackdrop?.addEventListener("click", closeRegister);
-
-btnLogout?.addEventListener("click", () => {
-  clearAuth();
-  localStorage.removeItem(CART_KEY); // مسح السلة عند logout
-  syncAuthUI();
-  renderCheckout();
-});
-
-loginForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (!loginError) return;
-
-  const email = (e.target.email.value || "").trim().toLowerCase();
-  const password = (e.target.password.value || "").trim();
-
-  const user = getUsers().find(
-    (u) => (u.email || "").toLowerCase() === email && u.password === password
-  );
-
-  if (!user) {
-    loginError.hidden = false;
-    loginError.textContent = "بيانات الدخول غير صحيحة (email أو كلمة المرور).";
-    return;
-  }
-
-  localStorage.setItem(
-    AUTH_KEY,
-    JSON.stringify({ username: user.username, email: user.email })
-  );
-
-  closeLoginImpl();
-  syncAuthUI();
-  loginForm.reset();
-});
-
-registerForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const username = (e.target.username.value || "").trim();
-  const email = (e.target.email.value || "").trim().toLowerCase();
-  const password = (e.target.password.value || "").trim();
-
-  if (!username || !email || !password) return;
-
-  const users = getUsers();
-  if (users.some((u) => (u.email || "").toLowerCase() === email)) {
-    if (registerError) {
-      registerError.hidden = false;
-      registerError.textContent = "البريد الإلكتروني مسجل بالفعل.";
-    }
-    return;
-  }
-
-  users.push({ username, email, password });
-  setUsers(users);
-
-  closeRegister();
-  registerForm.reset();
-
-  // بعد register يفتح login مش دخول تلقائي
-  openLoginImpl();
-});
-
-// =====================
-// Checkout UI
-// =====================
 const checkoutItems = $("#checkoutItems");
 const checkoutEmpty = $("#checkoutEmpty");
 const checkoutTotalEl = $("#checkoutTotal");
 const btnConfirmOrder = $("#btnConfirmOrder");
 const checkoutMsg = $("#checkoutMsg");
 const paymentMethods = $("#paymentMethods");
-
 const orderSuccessOverlay = $("#orderSuccessOverlay");
-
-// Bank details elements (لو موجودة)
 const bankDetails = $("#bankDetails");
-const cardNumberEl = $("#cardNumber");
-const cardNameEl = $("#cardName");
-const cardExpEl = $("#cardExp");
-const cardCvvEl = $("#cardCvv");
 
 function toggleBankDetails(methodId) {
   if (!bankDetails) return;
@@ -239,7 +48,7 @@ function renderPaymentMethods() {
 
   const paymentOptions = [
     { id: "cash", title: "الدفع عند الاستلام", sub: "كاش عند توصيل الطلب" },
-    { id: "visa", title: "بطاقة بنكية", sub: "الدفع إلكترونيًا " },
+    { id: "visa", title: "بطاقة بنكية", sub: "الدفع إلكترونيًا" },
   ];
 
   paymentMethods.innerHTML = "";
@@ -263,20 +72,15 @@ function attachPaymentChange() {
   radios.forEach((r) => {
     r.addEventListener("change", () => toggleBankDetails(r.value));
   });
-
   const checked = document.querySelector('input[name="payment"]:checked');
   if (checked) toggleBankDetails(checked.value);
 }
 
-// big success message
 function showOrderSuccess() {
-  // overlay لو موجود
   if (orderSuccessOverlay) {
     orderSuccessOverlay.hidden = false;
     requestAnimationFrame(() => orderSuccessOverlay.classList.add("show"));
   }
-
-  // checkoutMsg لو عايزها كمان (مش شرط)
   if (checkoutMsg) {
     checkoutMsg.hidden = false;
     checkoutMsg.textContent = "تم تأكيد الطلب ✅";
@@ -301,7 +105,6 @@ function renderCheckout() {
 
   checkoutEmpty.hidden = true;
   btnConfirmOrder.disabled = false;
-
   checkoutItems.innerHTML = "";
 
   for (const [pidStr, qty] of Object.entries(cart)) {
@@ -332,10 +135,8 @@ function renderCheckout() {
       const id = Number(btn.dataset.minus);
       const cart2 = getCart();
       const next = (cart2[id] || 0) - 1;
-
       if (next <= 0) delete cart2[id];
       else cart2[id] = next;
-
       setCart(cart2);
       renderCheckout();
     });
@@ -346,20 +147,23 @@ function renderCheckout() {
       const id = Number(btn.dataset.plus);
       const cart2 = getCart();
       cart2[id] = (cart2[id] || 0) + 1;
-
       setCart(cart2);
       renderCheckout();
     });
   });
 }
 
-// =====================
-// Confirm Order
-// =====================
-btnConfirmOrder?.addEventListener("click", () => {
-  const user = getAuth();
+btnConfirmOrder?.addEventListener("click", async () => {
+  if (!requireLogin()) return;
 
- 
+  const cart = getCart();
+  if (cartCount(cart) === 0) {
+    if (checkoutMsg) {
+      checkoutMsg.hidden = false;
+      checkoutMsg.textContent = "السلة فارغة.";
+    }
+    return;
+  }
 
   const checked = document.querySelector('input[name="payment"]:checked');
   const payment = checked ? checked.value : null;
@@ -372,24 +176,75 @@ btnConfirmOrder?.addEventListener("click", () => {
     return;
   }
 
+  const notes = document.getElementById("orderNotes")?.value?.trim() || "";
+  const orderDate = api().todayIsoDate();
+  const items = [];
 
+  for (const [pidStr, qty] of Object.entries(cart)) {
+    const pid = Number(pidStr);
+    const p = byId.get(pid);
+    if (!p || !qty) continue;
+    items.push({
+      status: "pending",
+      order_date: orderDate,
+      quantity: Number(qty),
+      total_price: p.price * Number(qty),
+      pid,
+    });
+  }
 
-  // success
-  showOrderSuccess();
+  if (!items.length) {
+    if (checkoutMsg) {
+      checkoutMsg.hidden = false;
+      checkoutMsg.textContent = "لا توجد منتجات صالحة في السلة.";
+    }
+    return;
+  }
 
-  // clear cart
-  localStorage.removeItem(CART_KEY);
+  btnConfirmOrder.disabled = true;
+  if (checkoutMsg) {
+    checkoutMsg.hidden = false;
+    checkoutMsg.textContent = "جاري إرسال الطلب...";
+  }
 
-  // redirect after longer time
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 2000);
+  try {
+    await api().apiFetch("/api/order/batch", {
+      method: "POST",
+      body: {
+        items,
+        payment_method: payment === "visa" ? "card" : "cash",
+        order_notes: notes || null,
+      },
+    });
+
+    showOrderSuccess();
+    setCart({});
+    renderCheckout();
+
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 2000);
+  } catch (e) {
+    console.error(e);
+    btnConfirmOrder.disabled = false;
+    if (checkoutMsg) {
+      checkoutMsg.hidden = false;
+      checkoutMsg.textContent = e.message || "تعذّر إتمام الطلب.";
+    }
+  }
 });
 
-// =====================
-// Init
-// =====================
-syncAuthUI();
-renderPaymentMethods();
-attachPaymentChange();
-renderCheckout()
+async function initCheckout() {
+  if (!requireLogin()) return;
+
+  const list = await api().loadProducts();
+  byId = api().byId;
+
+  renderPaymentMethods();
+  attachPaymentChange();
+  renderCheckout();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initCheckout().catch((e) => console.error(e));
+});

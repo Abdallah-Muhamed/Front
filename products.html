@@ -31,6 +31,7 @@
         <!-- منطقة المستخدم (تظهر بعد الدخول) -->
         <div id="userArea" class="user-area" hidden>
           <a href="#" id="dashboardLink" class="btn btn--primary" style="text-decoration:none;">لوحة المزارع</a>
+          <button class="btn btn--ghost user-name" id="btnUser" style="display:flex; align-items:center; gap:8px;">
             <div class="user-avatar-wrap">
               <span id="userInitials" class="user-initials-circle"></span>
             </div>
@@ -190,7 +191,7 @@
       <!-- الدور -->
       <label>نوع الحساب</label>
       <div class="role-picker">
-        <input type="radio" name="role" id="roleFarmer" value="farmer" required>
+        <input type="radio" name="role" id="roleFarmer" value="farmer" required checked>
         <label for="roleFarmer" class="role-card">
           <span class="role-icon">🌾</span>
           <span class="role-name">مزارع</span>
@@ -204,7 +205,10 @@
 
       <!-- كلمة المرور -->
       <label>كلمة المرور</label>
-      <input name="password" id="regPassword" required type="password" placeholder="••••••••" />
+      <input name="password" id="regPassword" required type="password" placeholder="8+ أحرف ورقم 0-9" minlength="8" />
+      <p class="field-hint" style="font-size:12px;color:#718096;margin:4px 0 8px;">
+        Passwords must be at least 8 characters and include at least one digit ('0'-'9').
+      </p>
       <div class="password-strength" id="strengthBar">
         <div class="strength-track">
           <div class="strength-fill" id="strengthFill"></div>
@@ -279,8 +283,10 @@
    </footer>
    <!-- //////////////////////////////////////////////////////////////////////////////////// -->
 
-<!-- <script src="js/auth.js"></script> -->
-<script src="js/products-page.js"></script>
-<script src="js/script.js"></script>
+<script src="js/boot.js?v=20250603c"></script>
+<script src="js/config.js?v=20250603c"></script>
+<script src="js/api.js?v=20250603c"></script>
+<script src="js/auth.js?v=20250603c"></script>
+<script src="js/products-page.js?v=20250603c"></script>
 </body>
 <!-- </html> -->

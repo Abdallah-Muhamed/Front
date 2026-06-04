@@ -1,47 +1,28 @@
 "use strict";
 
-// Keys
-const CART_KEY = "demo_cart";
-const PRODUCTS_KEY = "demo_all_products";
+const api = () => window.SmartFarmApi;
 
-// Default products
-const defaultProducts = [
-  { id: 1, name: "قمح (كيلو)", price: 25, category: "حبوب", img: "images/item1 (1).jpg" },
-  { id: 2, name: "بطاطس (كيلو)", price: 20, category: "خضروات", img: "images/item5.jpg" },
-  { id: 3, name: "طماطم (كيلو)", price: 30, category: "خضروات", img: "images/item2.jpg" },
-  { id: 4, name: "عنّب أسود (كيلو)", price: 55, category: "فاكهة", img: "images/item4.jpg" },
-  { id: 5, name: "فراولة (باكيت)", price: 45, category: "فاكهة", img: "images/item6.jpg" },
-  { id: 6, name: "ذرة صفراء (كيلو)", price: 35, category: "خضروات", img: "images/item3.jpg" },
-];
+let PRODUCTS = [];
+const byId = {};
 
-function getProducts() {
-  let prods = null;
-  try { prods = JSON.parse(localStorage.getItem(PRODUCTS_KEY)); } catch (_) {}
-  if (!Array.isArray(prods) || prods.length === 0) {
-    prods = defaultProducts;
-    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(prods));
-  }
-  return prods;
+function rebuildIndex(list) {
+  PRODUCTS = list;
+  for (const k of Object.keys(byId)) delete byId[k];
+  for (const p of list) byId[p.id] = p;
 }
 
-const PRODUCTS = getProducts();
-const byId = {};
-for (const p of PRODUCTS) byId[p.id] = p;
-
-// Cart helpers
 function getCart() {
-  try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; }
-  catch { return {}; }
+  return api()?.getCart() || {};
 }
 function setCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart || {}));
+  api()?.setCart(cart);
 }
 function cartCount(cart) {
-  let sum = 0;
-  for (const k in cart) sum += Number(cart[k] || 0);
-  return sum;
+  return api()?.cartCount(cart) ?? 0;
 }
-function money(n) { return (Number(n) || 0) + " ج.م"; }
+function money(n) {
+  return api()?.formatMoney(n) ?? `${Number(n) || 0} ج.م`;
+}
 
 function updateCartBadge() {
   const cartBadge = document.getElementById("cartBadge");
@@ -61,19 +42,30 @@ function showToast(text) {
   }, 1600);
 }
 
-// Cart modal
 function openCart() {
   const bd = document.getElementById("cartBackdrop");
   const md = document.getElementById("cartModal");
-  if (bd) { bd.hidden = false; bd.style.display = "block"; }
-  if (md) { md.hidden = false; md.style.display = "flex"; }
+  if (bd) {
+    bd.hidden = false;
+    bd.style.display = "block";
+  }
+  if (md) {
+    md.hidden = false;
+    md.style.display = "flex";
+  }
   renderCart();
 }
 function closeCart() {
   const bd = document.getElementById("cartBackdrop");
   const md = document.getElementById("cartModal");
-  if (bd) { bd.hidden = true; bd.style.display = "none"; }
-  if (md) { md.hidden = true; md.style.display = "none"; }
+  if (bd) {
+    bd.hidden = true;
+    bd.style.display = "none";
+  }
+  if (md) {
+    md.hidden = true;
+    md.style.display = "none";
+  }
 }
 window.openCart = openCart;
 window.closeCart = closeCart;
@@ -141,15 +133,11 @@ function changeQty(productId, delta) {
 }
 window.changeQty = changeQty;
 
-// Add to cart (guarded by auth.js)
 function addToCartCore(productId) {
-  const logged = !!localStorage.getItem("authToken"); // ده اللي auth.js بيحفظه
+  const logged = api()?.isLoggedIn();
 
   if (!logged) {
-    // ✅ افتح مودال الـ Login
     if (typeof window.openLogin === "function") window.openLogin();
-
-    // رسالة تنبيه جوه المودال
     const loginError = document.getElementById("loginError");
     if (loginError) {
       loginError.hidden = false;
@@ -168,12 +156,17 @@ function addToCartCore(productId) {
 }
 window.addToCartCore = addToCartCore;
 
-// Render products + search
 function renderProducts(list) {
   const grid = document.getElementById("productsGrid");
   if (!grid) return;
 
   grid.innerHTML = "";
+  if (!list.length) {
+    grid.innerHTML =
+      '<p style="grid-column:1/-1;text-align:center;color:#718096;padding:24px;">لا توجد منتجات معروضة حالياً.</p>';
+    return;
+  }
+
   for (const p of list) {
     const card = document.createElement("div");
     card.className = "product-card";
@@ -191,45 +184,49 @@ function renderProducts(list) {
 }
 window.renderProducts = renderProducts;
 
-document.addEventListener("DOMContentLoaded", () => {
-  // cart buttons
-  document.getElementById("btnOpenCart")?.addEventListener("click", openCart);
-  document.getElementById("btnCloseCart")?.addEventListener("click", closeCart);
-
-  // init
+async function initHomePage() {
+  const list = await api().loadProducts();
+  rebuildIndex(list);
   updateCartBadge();
   if (document.getElementById("productsGrid")) renderProducts(PRODUCTS);
 
-  // search
   const searchInput = document.getElementById("searchInput");
   searchInput?.addEventListener("input", () => {
     const q = (searchInput.value || "").trim();
     if (!q) return renderProducts(PRODUCTS);
-    const filtered = PRODUCTS.filter((p) => (p.name || "").includes(q) || (p.category || "").includes(q));
+    const filtered = PRODUCTS.filter(
+      (p) => (p.name || "").includes(q) || (p.category || "").includes(q)
+    );
     renderProducts(filtered);
   });
-
-  // لو auth.js موجود: يحدث الهيدر
-  if (typeof window.applySessionUI === "function") window.applySessionUI();
-});
-
-// لو حصل login/logout من auth.js نحدث أرقام السلة/الهيدر لو حبيت
-window.addEventListener("authLogin", () => {
-  if (typeof window.applySessionUI === "function") window.applySessionUI();
-});
-window.addEventListener("authLogout", () => {
-  if (typeof window.applySessionUI === "function") window.applySessionUI();
-});
-
-
-
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".section1-category .category").forEach(el => {
+  document.getElementById("btnOpenCart")?.addEventListener("click", openCart);
+  document.getElementById("btnCloseCart")?.addEventListener("click", closeCart);
+
+  const btnCheckout = document.getElementById("btnCheckout");
+  btnCheckout?.addEventListener("click", () => {
+    window.location.href = "checkout.html";
+  });
+
+  initHomePage().catch((e) => console.error(e));
+
+  if (typeof window.applySessionUI === "function") window.applySessionUI();
+
+  document.querySelectorAll(".section1-category .category").forEach((el) => {
     el.addEventListener("click", () => {
       const cat = el.dataset.cat;
       if (!cat) return;
       window.location.href = `products.html?cat=${encodeURIComponent(cat)}`;
     });
   });
+});
+
+window.addEventListener("authLogin", () => {
+  if (typeof window.applySessionUI === "function") window.applySessionUI();
+});
+window.addEventListener("authLogout", () => {
+  if (typeof window.applySessionUI === "function") window.applySessionUI();
+  updateCartBadge();
 });

@@ -8,7 +8,57 @@
 
 "use strict";
 
-const BASE_URL = "https://smartfarm.runasp.net";
+function apiBase() {
+  const raw = window.API_BASE_URL || "https://smartfarm.runasp.net";
+  return raw.replace(/\/swagger\/?.*$/i, "").replace(/\/$/, "");
+}
+
+async function readResponse(res) {
+  const text = await res.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+  return { ok: res.ok, status: res.status, data, rawText: text };
+}
+
+/** Full parser in auth.js so register/login always show the real API message. */
+function extractApiErrorText(data) {
+  if (data == null) return "";
+  if (typeof data === "string") return data.trim();
+  if (Array.isArray(data)) {
+    return data.map((item) => extractApiErrorText(item)).filter(Boolean).join(" ");
+  }
+  if (typeof data === "object") {
+    for (const key of ["message", "Message", "error", "Error", "detail", "Detail", "title", "Title"]) {
+      const v = data[key];
+      if (typeof v === "string" && v.trim() && !/^one or more validation errors occurred\.?$/i.test(v)) {
+        return v.trim();
+      }
+    }
+    if (data.errors && typeof data.errors === "object") {
+      const parts = [];
+      for (const val of Object.values(data.errors)) {
+        const bit = extractApiErrorText(val);
+        if (bit) parts.push(bit);
+      }
+      if (parts.length) return parts.join(" ");
+    }
+  }
+  return "";
+}
+
+function formatApiError(data, status, fallback) {
+  const raw = extractApiErrorText(data);
+  if (raw) return raw;
+  if (status === 409) return "Email is already registered.";
+  if (status === 401) return "Invalid Email or Password.";
+  return fallback || `Request failed (HTTP ${status || "?"})`;
+}
 
 // ─────────────────────────────────────────────
 // Password strength
@@ -200,15 +250,17 @@ function initPhotoPreview() {
 // ─────────────────────────────────────────────
 // Upload profile photo
 // ─────────────────────────────────────────────
-async function uploadProfilePhoto(token) {
-  const input = document.getElementById("profilePhotoInput");
-  if (!input || !input.files?.[0]) return;
+async function uploadProfilePhoto(token, fileOverride) {
+  const file =
+    fileOverride ||
+    document.getElementById("profilePhotoInput")?.files?.[0];
+  if (!file) return;
 
   const formData = new FormData();
-  formData.append("file", input.files[0]);
+  formData.append("file", file);
 
   try {
-    const res = await fetch(`${BASE_URL}/api/user/me/Profile_Photo`, {
+    const res = await fetch(`${apiBase()}/api/user/me/Profile_Photo`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -241,23 +293,24 @@ function hideError(el) {
 // Session (بنخزن زي ما انت كنت عامل: authToken + userName ...)
 // ─────────────────────────────────────────────
 function saveSession(data) {
-  const token = data.token || "";
+  const token = data.token || data.Token || "";
   if (token) localStorage.setItem("authToken", token);
 
-  const firstName = data.first_name || "";
-  const lastName = data.last_name || "";
-  const fullName = (firstName + " " + lastName).trim() || data.email || "مستخدم";
+  const firstName = data.first_name || data.First_name || "";
+  const lastName = data.last_name || data.Last_name || "";
+  const fullName = (firstName + " " + lastName).trim() || data.email || data.Email || "مستخدم";
 
   localStorage.setItem("userName", fullName);
   localStorage.setItem("userFirstName", firstName);
-  localStorage.setItem("userRole", data.role || "");
-  localStorage.setItem("userUid", String(data.uid || ""));
-  if (data.photoUrl) localStorage.setItem("userPhoto", data.photoUrl);
+  localStorage.setItem("userRole", (data.role || data.Role || "").toLowerCase());
+  localStorage.setItem("userUid", String(data.uid ?? data.Uid ?? ""));
+  const photo = data.photoUrl || data.photo_url;
+  if (photo) localStorage.setItem("userPhoto", photo);
 }
 
 async function fetchUserProfile(token) {
   try {
-    const res = await fetch(`${BASE_URL}/api/user/me`, {
+    const res = await fetch(`${apiBase()}/api/user/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return;
@@ -369,6 +422,23 @@ async function handleRegister(e) {
     ...(_detectedLat !== null ? { latitude: _detectedLat, longitude: _detectedLng } : {}),
   };
 
+  if (!payload.role) {
+    showError(errEl, "اختر نوع الحساب: مزارع أو تاجر.");
+    return;
+  }
+  if (payload.password.length < 8) {
+    showError(errEl, "Passwords must be at least 8 characters.");
+    return;
+  }
+  if (!/\d/.test(payload.password)) {
+    showError(errEl, "Passwords must have at least one digit ('0'-'9').");
+    return;
+  }
+  if (!payload.email || !payload.phone) {
+    showError(errEl, "أكمل البريد الإلكتروني ورقم الهاتف.");
+    return;
+  }
+
   const submitBtn = form.querySelector('button[type="submit"]');
   if (submitBtn) {
     submitBtn.disabled = true;
@@ -376,47 +446,56 @@ async function handleRegister(e) {
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/api/Authentication/register`, {
+    const res = await fetch(`${apiBase()}/api/Authentication/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json().catch(() => ({}));
+    const { ok, status, data } = await readResponse(res);
 
-    if (!res.ok) {
-      let msg = data?.message || data?.title || data?.error || data?.detail || "";
-      if (!msg && data?.errors) msg = Object.values(data.errors).flat().join(" | ");
-      if (!msg) msg = "حدث خطأ أثناء التسجيل. حاول مرة أخرى.";
+    if (!ok) {
+      const msg = formatApiError(data, status, "Registration failed.");
+      console.warn("Register failed:", status, data, msg);
       showError(errEl, msg);
       return;
     }
 
-    // (اختياري) لو رجّع Token من register: احفظه + ارفع الصورة + حدّث UI
-    if (data?.token) {
-      saveSession({ ...data, email: payload.email, first_name: payload.first_name, last_name: payload.last_name, role: payload.role });
-      await fetchUserProfile(data.token);
-      await uploadProfilePhoto(data.token);
-      applySessionUI();
-      closeModal("registerModal", "registerBackdrop");
-      form.reset();
-      return;
-    }
-
-    // الافتراضي: بعد نجاح التسجيل افتح Login
+    // بعد التسجيل: لا دخول تلقائي — يفتح نموذج تسجيل الدخول فقط
     closeModal("registerModal", "registerBackdrop");
     openModal("loginModal", "loginBackdrop", "block");
 
-    // املا الإيميل في الفورم بتاع Login للتسهيل
     const loginEmail = document.querySelector('#loginForm input[name="email"]');
     if (loginEmail) loginEmail.value = payload.email;
 
+    const loginErr = document.getElementById("loginError");
+    if (loginErr) {
+      loginErr.hidden = false;
+      loginErr.style.color = "#38a169";
+      loginErr.textContent = "تم إنشاء الحساب بنجاح. سجّل دخولك الآن.";
+    }
+
+    const photoInput = document.getElementById("profilePhotoInput");
+    if (photoInput?.files?.[0]) {
+      window._pendingProfilePhoto = photoInput.files[0];
+    }
+
     form.reset();
-    alert("تم إنشاء الحساب! سجل دخولك الآن.");
+    if (photoInput) photoInput.value = "";
+    const preview = document.getElementById("avatarPreview");
+    if (preview) preview.innerHTML = '<span class="avatar-placeholder">📷</span>';
 
   } catch (err) {
     console.error("Register error:", err);
-    showError(errEl, "تعذّر الاتصال بالسيرفر. تحقق من الاتصال بالإنترنت.");
+    const base = apiBase();
+    const isLocal = /localhost|127\.0\.0\.1/.test(base);
+    const hint = isLocal
+      ? "شغّل مشروع Smart_Farm من Visual Studio (البورت 5043)، أو احذف localStorage.apiBaseUrl وحدّث الصفحة لاستخدام السيرفر على الإنترنت."
+      : "تأكد من اتصال الإنترنت أو جرّب لاحقاً.";
+    showError(
+      errEl,
+      `تعذّر الاتصال بالسيرفر (${base}). ${hint}`
+    );
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -447,31 +526,44 @@ async function handleLogin(e) {
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/api/Authentication/login`, {
+    const res = await fetch(`${apiBase()}/api/Authentication/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json().catch(() => ({}));
+    const { ok, status, data } = await readResponse(res);
 
-    if (!res.ok) {
-      const msg = data?.message || data?.title || "بيانات الدخول غلط. حاول مرة أخرى.";
-      showError(errEl, msg);
+    if (!ok) {
+      console.warn("Login failed:", status, data);
+      showError(
+        errEl,
+        formatApiError(data, status, "Invalid Email or Password.")
+      );
       return;
     }
 
     saveSession({ ...data, email: payload.email });
 
     const token = data.token || "";
-    if (token) await fetchUserProfile(token);
+    if (token) {
+      await fetchUserProfile(token);
+      if (window._pendingProfilePhoto) {
+        await uploadProfilePhoto(token, window._pendingProfilePhoto);
+        delete window._pendingProfilePhoto;
+      }
+    }
 
     applySessionUI();
     closeModal("loginModal", "loginBackdrop");
     form.reset();
+    window.dispatchEvent(new CustomEvent("authLogin"));
   } catch (err) {
     console.error("Login error:", err);
-    showError(errEl, "تعذّر الاتصال بالسيرفر. تحقق من الاتصال بالإنترنت.");
+    showError(
+      errEl,
+      `تعذّر الاتصال بالسيرفر (${apiBase()}). تحقق من الإنترنت أو شغّل الباك‌اند محلياً.`
+    );
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;

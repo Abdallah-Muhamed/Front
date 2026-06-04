@@ -1,108 +1,168 @@
-//   const currentUser = JSON.parse(localStorage.getItem("demo_user"));
-        if (!currentUser) {
-            // alert("يجب تسجيل الدخول كـ مزارع أولاً!");
-            // window.location.href = "index.html";
-        }
+"use strict";
 
-        // 2. إعداد البروفايل (أول حرف + الاسم)
-        const farmerName = currentUser.username;
-        document.getElementById("profileName").innerText = farmerName;
-        document.getElementById("profileAvatar").innerText = farmerName.charAt(0);
+const api = () => window.SmartFarmApi;
 
-        // 3. مفاتيح التخزين
-        const FARMS_KEY = "demo_farms";
-        const PRODUCTS_KEY = "demo_all_products";
+function requireFarmer() {
+  const token = api().getAuthToken();
+  const role = (localStorage.getItem("userRole") || "").toLowerCase();
+  if (!token) {
+    alert("يجب تسجيل الدخول أولاً.");
+    window.location.href = "index.html";
+    return false;
+  }
+  if (role && role !== "farmer") {
+    alert("هذه الصفحة للمزارعين فقط.");
+    window.location.href = "index.html";
+    return false;
+  }
+  return true;
+}
 
-        function getMyFarms() {
-            let allFarms = JSON.parse(localStorage.getItem(FARMS_KEY)) || [];
-            return allFarms.filter(f => f.farmerEmail === currentUser.email);
-        }
+async function loadProfile() {
+  try {
+    const user = await api().apiFetch("/api/user/me");
+    const first = user.first_name || user.First_name || "";
+    const last = user.last_name || user.Last_name || "";
+    const name = `${first} ${last}`.trim() || localStorage.getItem("userName") || "مزارع";
 
-        function getMyCrops() {
-            let allProds = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
-            return allProds.filter(p => p.sellerEmail === currentUser.email);
-        }
+    document.getElementById("profileName").innerText = name;
+    document.getElementById("profileAvatar").innerText = name.charAt(0) || "م";
+  } catch (e) {
+    console.error(e);
+    const name = localStorage.getItem("userName") || "مزارع";
+    document.getElementById("profileName").innerText = name;
+    document.getElementById("profileAvatar").innerText = name.charAt(0) || "م";
+  }
+}
 
-        // 4. رسم المزارع
-        function renderFarms() {
-            const myFarms = getMyFarms();
-            document.getElementById("countFarms").innerText = myFarms.length;
-            let html = "";
-            myFarms.forEach(f => {
-                html += `<div class="card">
-                            <h3 style="color:#1a365d; margin-bottom:5px;">${f.name}</h3>
-                            <p style="color:#666; font-size:14px;">📍 ${f.location}</p>
-                         </div>`;
-            });
-            document.getElementById("farmsGrid").innerHTML = html || "<p style='color:#888;'>لا يوجد مزارع مضافة بعد.</p>";
-        }
+async function renderFarms() {
+  const grid = document.getElementById("farmsGrid");
+  if (!grid) return;
 
-        // 5. حفظ المزرعة
-        function saveFarm() {
-            let fName = document.getElementById("farmName").value;
-            let fLoc = document.getElementById("farmLocation").value;
-            if(!fName || !fLoc) { alert("أكمل البيانات!"); return; }
+  try {
+    const farms = await api().apiFetch("/api/farm/me");
+    const list = Array.isArray(farms) ? farms : [];
+    document.getElementById("countFarms").innerText = list.length;
 
-            let allFarms = JSON.parse(localStorage.getItem(FARMS_KEY)) || [];
-            allFarms.push({ name: fName, location: fLoc, farmerEmail: currentUser.email });
-            localStorage.setItem(FARMS_KEY, JSON.stringify(allFarms));
+    if (!list.length) {
+      grid.innerHTML = "<p style='color:#888;'>لا يوجد مزارع مضافة بعد.</p>";
+      return;
+    }
 
-            document.getElementById('farmModal').style.display = 'none';
-            document.getElementById('farmName').value = "";
-            document.getElementById('farmLocation').value = "";
-            renderFarms();
-        }
+    grid.innerHTML = list
+      .map((f) => {
+        const loc = [f.city, f.governorate, f.address_line].filter(Boolean).join(" — ") || "—";
+        return `<div class="card">
+          <h3 style="color:#1a365d; margin-bottom:5px;">${f.name || f.Name}</h3>
+          <p style="color:#666; font-size:14px;">📍 ${loc}</p>
+          <p style="color:#888; font-size:12px;">محاصيل: ${f.cropCount ?? f.CropCount ?? 0}</p>
+        </div>`;
+      })
+      .join("");
+  } catch (e) {
+    console.error(e);
+    grid.innerHTML = "<p style='color:#e53e3e;'>تعذّر تحميل المزارع.</p>";
+  }
+}
 
-        // 6. رسم المحاصيل
-        function renderCrops() {
-            const myCrops = getMyCrops();
-            document.getElementById("countCrops").innerText = myCrops.length;
-            let html = "";
-            myCrops.forEach(c => {
-                // صورة افتراضية لو المزارع محطش صورة
-                let imgSource = c.img ? c.img : 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200';
-                html += `<div class="card">
-                            <img src="${imgSource}">
-                            <h4>${c.name}</h4>
-                            <p style="color:#2e7d32; font-weight:bold;">${c.price} ج.م</p>
-                            <span style="font-size:12px; background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:10px;">${c.category}</span>
-                         </div>`;
-            });
-            document.getElementById("cropsGrid").innerHTML = html || "<p style='color:#888;'>لم تقم بعرض أي محاصيل بالسوق.</p>";
-        }
+async function renderMarketProducts() {
+  const grid = document.getElementById("cropsGrid");
+  if (!grid) return;
 
-        // 7. حفظ المحصول (ونشره في السوق)
-        function saveCrop() {
-            let cName = document.getElementById("cropName").value;
-            let cPrice = document.getElementById("cropPrice").value;
-            let cCat = document.getElementById("cropCategory").value;
-            let cImg = document.getElementById("cropImg").value;
+  try {
+    const products = await api().apiFetch("/api/product/me");
+    const list = (Array.isArray(products) ? products : []).map(api().mapApiProduct);
+    document.getElementById("countCrops").innerText = list.length;
 
-            if(!cName || !cPrice) { alert("يجب إدخال اسم وسعر المحصول!"); return; }
+    if (!list.length) {
+      grid.innerHTML = "<p style='color:#888;'>لم تقم بعرض أي منتجات بالسوق بعد.</p>";
+      return;
+    }
 
-            let allProds = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
-            
-            // إنشاء كود تعريفي (ID) فريد للمنتج الجديد
-            let newId = Date.now(); 
+    grid.innerHTML = list
+      .map((c) => {
+        const img = c.img || "images/item2.jpg";
+        return `<div class="card">
+          <img src="${img}" alt="" onerror="this.style.display='none'">
+          <h4>${c.name}</h4>
+          <p style="color:#2e7d32; font-weight:bold;">${c.price} ج.م</p>
+          <span style="font-size:12px; background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:10px;">${c.category || ""}</span>
+        </div>`;
+      })
+      .join("");
+  } catch (e) {
+    console.error(e);
+    grid.innerHTML = "<p style='color:#e53e3e;'>تعذّر تحميل المنتجات.</p>";
+  }
+}
 
-            allProds.push({ 
-                id: newId, 
-                name: cName, 
-                price: Number(cPrice), 
-                category: cCat, 
-                img: cImg, 
-                sellerEmail: currentUser.email 
-            });
+async function saveFarm() {
+  const fName = document.getElementById("farmName")?.value?.trim();
+  const fLoc = document.getElementById("farmLocation")?.value?.trim();
+  if (!fName || !fLoc) {
+    alert("أكمل البيانات!");
+    return;
+  }
 
-            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(allProds));
+  try {
+    await api().apiFetch("/api/farm", {
+      method: "POST",
+      body: {
+        name: fName,
+        locationQuery: fLoc,
+      },
+    });
 
-            document.getElementById('cropModal').style.display = 'none';
-            alert("تم نشر المحصول بنجاح! سيظهر الآن للعملاء في الصفحة الرئيسية.");
-            renderCrops();
-        }
+    document.getElementById("farmModal").style.display = "none";
+    document.getElementById("farmName").value = "";
+    document.getElementById("farmLocation").value = "";
+    await renderFarms();
+  } catch (e) {
+    alert(e.message || "تعذّر حفظ المزرعة.");
+  }
+}
 
-        // تشغيل الدوال عند فتح الصفحة
-        window.onload = function() {
-            renderFarms();
-            renderCrops();
-        };
+async function saveCrop() {
+  const cName = document.getElementById("cropName")?.value?.trim();
+  const cPrice = document.getElementById("cropPrice")?.value;
+  const cCat = document.getElementById("cropCategory")?.value;
+
+  if (!cName || !cPrice) {
+    alert("يجب إدخال اسم وسعر المنتج!");
+    return;
+  }
+
+  try {
+    await api().apiFetch("/api/product", {
+      method: "POST",
+      body: {
+        description: cName,
+        price: Number(cPrice),
+        category: cCat,
+        quantity: 100,
+        added_date: api().todayIsoDate(),
+      },
+    });
+
+    document.getElementById("cropModal").style.display = "none";
+    alert("تم نشر المنتج في السوق بنجاح!");
+    document.getElementById("cropName").value = "";
+    document.getElementById("cropPrice").value = "";
+    await renderMarketProducts();
+  } catch (e) {
+    alert(e.message || "تعذّر نشر المنتج.");
+  }
+}
+
+window.saveFarm = saveFarm;
+window.saveCrop = saveCrop;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if (!requireFarmer()) return;
+
+  if (typeof window.applySessionUI === "function") window.applySessionUI();
+
+  await loadProfile();
+  await renderFarms();
+  await renderMarketProducts();
+});
