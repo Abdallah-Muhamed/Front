@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>صفحة التاجر</title>
+
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <header>
+    <div class="container header-inner">
+        <div class="brand__icon"  style="display: inline-block;"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
+      <button onclick="window.location.href='index.html'"
+              style="padding:8px 15px; cursor:pointer; border:1px solid #ccc; background:white; border-radius:5px;display: inline-block; float: left;">
+        ← العودة للرئيسية
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Profile -->
+    <div class="profile-area">
+      <div class="avatar" id="profileAvatar">ت</div>
+      <div class="farmer-name" id="profileName">اسم التاجر</div>
+      <p style="color:#666; font-size:14px;">حساب تاجر معتمد</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3 id="countCrops">0</h3>
+        <p>محاصيلي المعروضة للبيع</p>
+      </div>
+      <div class="stat-card">
+        <h3 id="sumStock">0</h3>
+        <p>إجمالي الكميات</p>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="section-header">
+      <h2>محاصيلي المعروضة للبيع</h2>
+      <button class="btn-add" onclick="openCropModal()">+ إضافة محصول للسوق</button>
+    </div>
+
+    <div class="grid-cards" id="cropsGrid"></div>
+  </div>
+
+  <!-- Add Product Modal -->
+  <div class="sf-modal" id="cropModal">
+    <div class="sf-modal__box">
+      <div class="sf-modal__header">
+        <h3>إضافة محصول وعرضه بالسوق</h3>
+        <button type="button" class="sf-icon-btn" onclick="closeCropModal()">✖</button>
+      </div>
+
+      <div class="sf-modal__body">
+        <div class="sf-form sf-form--grid">
+          <div class="sf-field">
+            <label for="cropName">اسم المحصول</label>
+            <input type="text" id="cropName" placeholder="مثال: عنب أحمر" required>
+          </div>
+
+          <div class="sf-field">
+            <label for="cropCategory">النوع</label>
+            <select id="cropCategory" required>
+              <option value="خضروات">خضروات</option>
+              <option value="فاكهة">فاكهة</option>
+              <option value="حبوب">حبوب</option>
+            </select>
+          </div>
+
+          <div class="sf-field">
+            <label for="cropPrice">السعر (جنيه)</label>
+            <input type="number" id="cropPrice" placeholder="مثال: 40" min="1" step="1" required>
+          </div>
+
+          <div class="sf-field">
+            <label for="cropQuantity">الكمية المتاحة</label>
+            <input type="number" id="cropQuantity" placeholder="مثال: 100" min="1" step="1" required>
+          </div>
+
+          <div class="sf-field" style="grid-column:1/-1;">
+            <label for="cropImg">رابط صورة (اختياري)</label>
+            <input type="text" id="cropImg" placeholder="https://...">
+            <small class="sf-hint">رفع صورة من الجهاز يحتاج Endpoint للرفع في الـ API</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="sf-modal__footer">
+        <button type="button" class="sf-btn sf-btn--ghost" onclick="closeCropModal()">إلغاء</button>
+        <button type="button" class="sf-btn sf-btn--primary" onclick="saveCrop()">نشر في السوق</button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <script src="js/boot.js?v=20250603c"></script>
+    <script src="js/config.js?v=20250603c"></script>
+    <script src="js/api.js?v=20250603c"></script>
+    <script src="js/auth.js?v=20250603c"></script>
+  <script src="js/trader-dashboard.js?v=20250603c"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title> صفحة المستخدم</title>
+    <title> صفحة المزارع</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         body { background: #f4f7f6; color: #333; }
@@ -18,8 +18,8 @@
 
     <header>
         <div class="container header-inner">
-            <h2 style="color: #2e7d32;">سوق المزرعة</h2>
-            <button onclick="window.location.href='index.html'" style="padding: 8px 15px; cursor: pointer; border: 1px solid #ccc; background: white; border-radius: 5px;">← العودة للرئيسية</button>
+        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
+            <button onclick="window.location.href='index.html'" style="padding:8px 15px; cursor:pointer; border:1px solid #ccc; background:white; border-radius:5px;display: inline-block; float: left;">>← العودة للرئيسية</button>
         </div>
     </header>
 
@@ -128,8 +128,13 @@
         </div>
 
         <div class="sf-field">
-          <label for="cropImg">رابط صورة (اختياري)</label>
-          <input type="text" id="cropImg" placeholder="https://...">
+         <div class="sf-field">
+  <label for="cropPhotoInput">صورة المحصول</label>
+  <input type="file" id="cropPhotoInput" accept="image/*">
+  <small class="sf-hint">PNG / JPG — حد أقصى 5MB</small>
+
+  <div id="cropPhotoPreview" class="sf-img-preview" hidden></div>
+</div>
         </div>
       </div>
     </div>
