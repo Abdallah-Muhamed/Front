@@ -1,5 +1,51 @@
 "use strict";
 
+
+let myFarmsCache = []; // هنخزن فيها مزارع المستخدم عشان نستخدمها في select
+
+function openFarmModal() {
+  const m = document.getElementById("farmModal");
+  if (m) m.style.display = "flex";
+}
+
+function fillFarmSelect() {
+  const sel = document.getElementById("cropFarmId");
+  if (!sel) return;
+
+  sel.innerHTML = "";
+
+  if (!myFarmsCache.length) {
+    sel.innerHTML = `<option value="">لا توجد مزارع — أضف مزرعة أولاً</option>`;
+    sel.disabled = true;
+    return;
+  }
+
+  sel.disabled = false;
+  sel.insertAdjacentHTML("beforeend", `<option value="">اختر المزرعة</option>`);
+
+  myFarmsCache.forEach(f => {
+    const id = f.id ?? f.Id;
+    const name = f.name ?? f.Name ?? "مزرعة";
+    sel.insertAdjacentHTML("beforeend", `<option value="${id}">${name}</option>`);
+  });
+}
+
+function openCropModal() {
+  // لازم يكون عنده مزارع قبل ما ينشر محصول
+  if (!myFarmsCache.length) {
+    alert("لا يمكنك إضافة محصول قبل إضافة مزرعة.");
+    openFarmModal();
+    return;
+  }
+
+  fillFarmSelect();
+  const m = document.getElementById("cropModal");
+  if (m) m.style.display = "flex";
+}
+
+window.openFarmModal = openFarmModal;
+window.openCropModal = openCropModal;
+
 const api = () => window.SmartFarmApi;
 
 function requireFarmer() {
@@ -40,9 +86,13 @@ async function renderFarms() {
   if (!grid) return;
 
   try {
-    const farms = await api().apiFetch("/api/farm/me");
-    const list = Array.isArray(farms) ? farms : [];
-    document.getElementById("countFarms").innerText = list.length;
+ const farms = await api().apiFetch("/api/farm/me");
+const list = Array.isArray(farms) ? farms : [];
+
+myFarmsCache = list;
+fillFarmSelect();
+
+document.getElementById("countFarms").innerText = list.length;
 
     if (!list.length) {
       grid.innerHTML = "<p style='color:#888;'>لا يوجد مزارع مضافة بعد.</p>";
@@ -98,9 +148,15 @@ async function renderMarketProducts() {
 
 async function saveFarm() {
   const fName = document.getElementById("farmName")?.value?.trim();
-  const fLoc = document.getElementById("farmLocation")?.value?.trim();
+  const fLoc  = document.getElementById("farmLocation")?.value?.trim();
+  const fArea = Number(document.getElementById("farmArea")?.value);
+
   if (!fName || !fLoc) {
     alert("أكمل البيانات!");
+    return;
+  }
+  if (!Number.isFinite(fArea) || fArea <= 0) {
+    alert("اكتب مساحة صحيحة للمزرعة!");
     return;
   }
 
@@ -110,12 +166,18 @@ async function saveFarm() {
       body: {
         name: fName,
         locationQuery: fLoc,
+
+        // ملاحظة: اسم الحقل ده لازم يطابق الباك إند
+        // لو الباك إند عندك اسمه غير كده (area / size / farm_area) قلّي واظبطه
+        area: fArea,
       },
     });
 
     document.getElementById("farmModal").style.display = "none";
     document.getElementById("farmName").value = "";
     document.getElementById("farmLocation").value = "";
+    document.getElementById("farmArea").value = "";
+
     await renderFarms();
   } catch (e) {
     alert(e.message || "تعذّر حفظ المزرعة.");
@@ -124,11 +186,26 @@ async function saveFarm() {
 
 async function saveCrop() {
   const cName = document.getElementById("cropName")?.value?.trim();
-  const cPrice = document.getElementById("cropPrice")?.value;
+  const cPrice = Number(document.getElementById("cropPrice")?.value);
   const cCat = document.getElementById("cropCategory")?.value;
 
-  if (!cName || !cPrice) {
-    alert("يجب إدخال اسم وسعر المنتج!");
+  const farmId = document.getElementById("cropFarmId")?.value;
+  const qty = Number(document.getElementById("cropQuantity")?.value);
+
+  if (!cName) {
+    alert("يجب إدخال اسم المنتج!");
+    return;
+  }
+  if (!Number.isFinite(cPrice) || cPrice <= 0) {
+    alert("يجب إدخال سعر صحيح!");
+    return;
+  }
+  if (!farmId) {
+    alert("اختار اسم المزرعة!");
+    return;
+  }
+  if (!Number.isFinite(qty) || qty <= 0) {
+    alert("اكتب كمية صحيحة!");
     return;
   }
 
@@ -137,17 +214,25 @@ async function saveCrop() {
       method: "POST",
       body: {
         description: cName,
-        price: Number(cPrice),
+        price: cPrice,
         category: cCat,
-        quantity: 100,
+        quantity: qty,
         added_date: api().todayIsoDate(),
+
+        // ملاحظة: لازم اسم الحقل ده يطابق API بتاعك:
+        // بعض الباك إند بيكون farmId أو farm_id
+        farmId: Number(farmId),
+        // farm_id: Number(farmId),  // لو ده الصحيح عندك فعّل ده بدل farmId
       },
     });
 
     document.getElementById("cropModal").style.display = "none";
     alert("تم نشر المنتج في السوق بنجاح!");
+
     document.getElementById("cropName").value = "";
     document.getElementById("cropPrice").value = "";
+    document.getElementById("cropQuantity").value = "";
+
     await renderMarketProducts();
   } catch (e) {
     alert(e.message || "تعذّر نشر المنتج.");
@@ -166,3 +251,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderFarms();
   await renderMarketProducts();
 });
+
+
+function openFarmModal(){ document.getElementById("farmModal").style.display = "flex"; }
+function closeFarmModal(){ document.getElementById("farmModal").style.display = "none"; }
+
+function openCropModal(){ document.getElementById("cropModal").style.display = "flex"; }
+function closeCropModal(){ document.getElementById("cropModal").style.display = "none"; }
+
+window.openFarmModal = openFarmModal;
+window.closeFarmModal = closeFarmModal;
+window.openCropModal = openCropModal;
+window.closeCropModal = closeCropModal;

@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة المزارع</title>
+    <title> صفحة المستخدم</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         body { background: #f4f7f6; color: #333; }
@@ -39,46 +39,107 @@
         <!-- قسم المزارع -->
         <div class="section-header">
             <h2>مزارعي</h2>
-            <button class="btn-add" onclick="document.getElementById('farmModal').style.display='flex'">+ إضافة مزرعة</button>
+            <button class="btn-add" onclick="openFarmModal()">+ إضافة مزرعة</button>
         </div>
         <div class="grid-cards" id="farmsGrid"></div>
 
         <!-- قسم المحاصيل -->
         <div class="section-header">
             <h2>محاصيلي المعروضة للبيع</h2>
-            <button class="btn-add" onclick="document.getElementById('cropModal').style.display='flex'">+ إضافة محصول للسوق</button>
+            <button class="btn-add" onclick="openCropModal()">+ إضافة محصول للسوق</button>
         </div>
         <div class="grid-cards" id="cropsGrid"></div>
     </div>
 
     <!-- نافذة إضافة مزرعة -->
-    <div class="modal" id="farmModal">
-        <div class="modal-box">
-            <button onclick="this.parentElement.parentElement.style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; color:red; font-size:20px; cursor:pointer;">✖</button>
-            <h3 style="color:#2e7d32; margin-bottom:15px;">إضافة مزرعة جديدة</h3>
-            <input type="text" id="farmName" placeholder="اسم المزرعة (مثال: مزرعة الأمل)">
-            <input type="text" id="farmLocation" placeholder="الموقع (مثال: الشرقية - فاقوس)">
-            <button class="btn-add" style="width:100%;" onclick="saveFarm()">حفظ المزرعة</button>
-        </div>
+   <div class="sf-modal" id="farmModal">
+  <div class="sf-modal__box">
+    <div class="sf-modal__header">
+      <h3 id="farmModalTitle">إضافة مزرعة جديدة</h3>
+      <button type="button" class="sf-icon-btn" onclick="closeFarmModal()">✖</button>
     </div>
+
+    <div class="sf-modal__body">
+      <div class="sf-form">
+        <div class="sf-field">
+          <label for="farmName">اسم المزرعة</label>
+          <input type="text" id="farmName" placeholder="مثال: مزرعة الأمل" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="farmLocation">الموقع</label>
+          <input type="text" id="farmLocation" placeholder="مثال: الشرقية - فاقوس" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="farmArea">المساحة (فدان)</label>
+          <input type="number" id="farmArea" placeholder="مثال: 2.5" step="0.01" min="0" required>
+          <small class="sf-hint">اكتب رقم صحيح (مثال: 1.25)</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="sf-modal__footer">
+      <button type="button" class="sf-btn sf-btn--ghost" onclick="closeFarmModal()">إلغاء</button>
+      <button type="button" class="sf-btn sf-btn--primary" onclick="saveFarm()">حفظ المزرعة</button>
+    </div>
+  </div>
+</div>
 
     <!-- نافذة إضافة محصول للسوق -->
-    <div class="modal" id="cropModal">
-        <div class="modal-box">
-            <button onclick="this.parentElement.parentElement.style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; color:red; font-size:20px; cursor:pointer;">✖</button>
-            <h3 style="color:#2e7d32; margin-bottom:15px;">إضافة محصول وعرضه بالسوق</h3>
-            <input type="text" id="cropName" placeholder="اسم المحصول (مثال: عنب أحمر)">
-            <input type="number" id="cropPrice" placeholder="السعر بالجنيه (مثال: 40)">
-            <select id="cropCategory">
-                <option value="خضروات">خضروات</option>
-                <option value="فاكهة">فاكهة</option>
-                <option value="حبوب">حبوب</option>
-            </select>
-            <input type="text" id="cropImg" placeholder="رابط صورة المحصول (اختياري)">
-            <button class="btn-add" style="width:100%;" onclick="saveCrop()">نشر في السوق</button>
-        </div>
+  <div class="sf-modal" id="cropModal">
+  <div class="sf-modal__box">
+    <div class="sf-modal__header">
+      <h3 id="cropModalTitle">إضافة محصول وعرضه بالسوق</h3>
+      <button type="button" class="sf-icon-btn" onclick="closeCropModal()">✖</button>
     </div>
 
+    <div class="sf-modal__body">
+      <div class="sf-form sf-form--grid">
+        <div class="sf-field">
+          <label for="cropName">اسم المحصول</label>
+          <input type="text" id="cropName" placeholder="مثال: عنب أحمر" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropCategory">النوع</label>
+          <select id="cropCategory" required>
+            <option value="خضروات">خضروات</option>
+            <option value="فاكهة">فاكهة</option>
+            <option value="حبوب">حبوب</option>
+          </select>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropFarmId">المزرعة</label>
+          <select id="cropFarmId" required>
+            <option value="">اختر المزرعة</option>
+          </select>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropPrice">السعر (جنيه)</label>
+          <input type="number" id="cropPrice" placeholder="مثال: 40" min="1" step="1" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropQuantity">الكمية المتاحة</label>
+          <input type="number" id="cropQuantity" placeholder="مثال: 100" min="1" step="1" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropImg">رابط صورة (اختياري)</label>
+          <input type="text" id="cropImg" placeholder="https://...">
+        </div>
+      </div>
+    </div>
+
+    <div class="sf-modal__footer">
+      <button type="button" class="sf-btn sf-btn--ghost" onclick="closeCropModal()">إلغاء</button>
+      <button type="button" class="sf-btn sf-btn--primary" onclick="saveCrop()">نشر في السوق</button>
+    </div>
+  </div>
+</div>
     
 
 
