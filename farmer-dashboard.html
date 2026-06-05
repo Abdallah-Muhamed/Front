@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة المزارع</title>
+    <title> صفحة المزارع</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         body { background: #f4f7f6; color: #333; }
@@ -17,12 +17,18 @@
 <body>
 
     <header>
+<<<<<<< HEAD
         <div class="container header-inner" style="display:flex;justify-content:space-between;align-items:center;">
             <h2 style="color: #2e7d32; margin:0;">سوق المزرعة — لوحة المزارع</h2>
             <div style="display:flex;gap:8px;">
                 <button type="button" id="btnLogoutDash" class="btn btn--ghost">خروج</button>
                 <button type="button" onclick="window.location.href='index.html'" class="btn btn--ghost">← الرئيسية</button>
             </div>
+=======
+        <div class="container header-inner">
+        <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
+            <button onclick="window.location.href='index.html'" style="padding:8px 15px; cursor:pointer; border:1px solid #ccc; background:white; border-radius:5px;display: inline-block; float: left;">>← العودة للرئيسية</button>
+>>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e
         </div>
     </header>
 
@@ -42,14 +48,23 @@
         <!-- المزارع -->
         <div class="section-header">
             <h2>مزارعي</h2>
+<<<<<<< HEAD
             <button type="button" class="btn-add" id="btnOpenFarmModal">+ إضافة مزرعة</button>
+=======
+            <button class="btn-add" onclick="openFarmModal()">+ إضافة مزرعة</button>
+>>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e
         </div>
         <div class="grid-cards" id="farmsGrid"></div>
 
         <!-- محاصيل مزرعية (Crop) -->
         <div class="section-header">
+<<<<<<< HEAD
             <h2>محاصيلي في المزارع</h2>
             <button type="button" class="btn-add" id="btnOpenFieldCropModal">+ إضافة محصول مزرعي</button>
+=======
+            <h2>محاصيلي المعروضة للبيع</h2>
+            <button class="btn-add" onclick="openCropModal()">+ إضافة محصول للسوق</button>
+>>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e
         </div>
         <p class="field-hint" style="margin-bottom:12px;">اختر نوع النبات من قاعدة البيانات واربطه بمزرعة مسجّلة.</p>
         <div class="grid-cards" id="fieldCropsGrid"></div>
@@ -63,6 +78,7 @@
         <div class="grid-cards" id="marketGrid"></div>
     </div>
 
+<<<<<<< HEAD
     <!-- مزرعة -->
     <div class="modal" id="farmModal" style="display:none;">
         <div class="modal-box">
@@ -114,6 +130,103 @@
             <button type="button" class="btn-add" style="width:100%;" id="btnSaveMarket">نشر في السوق</button>
         </div>
     </div>
+=======
+    <!-- نافذة إضافة مزرعة -->
+   <div class="sf-modal" id="farmModal">
+  <div class="sf-modal__box">
+    <div class="sf-modal__header">
+      <h3 id="farmModalTitle">إضافة مزرعة جديدة</h3>
+      <button type="button" class="sf-icon-btn" onclick="closeFarmModal()">✖</button>
+    </div>
+
+    <div class="sf-modal__body">
+      <div class="sf-form">
+        <div class="sf-field">
+          <label for="farmName">اسم المزرعة</label>
+          <input type="text" id="farmName" placeholder="مثال: مزرعة الأمل" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="farmLocation">الموقع</label>
+          <input type="text" id="farmLocation" placeholder="مثال: الشرقية - فاقوس" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="farmArea">المساحة (فدان)</label>
+          <input type="number" id="farmArea" placeholder="مثال: 2.5" step="0.01" min="0" required>
+          <small class="sf-hint">اكتب رقم صحيح (مثال: 1.25)</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="sf-modal__footer">
+      <button type="button" class="sf-btn sf-btn--ghost" onclick="closeFarmModal()">إلغاء</button>
+      <button type="button" class="sf-btn sf-btn--primary" onclick="saveFarm()">حفظ المزرعة</button>
+    </div>
+  </div>
+</div>
+
+    <!-- نافذة إضافة محصول للسوق -->
+  <div class="sf-modal" id="cropModal">
+  <div class="sf-modal__box">
+    <div class="sf-modal__header">
+      <h3 id="cropModalTitle">إضافة محصول وعرضه بالسوق</h3>
+      <button type="button" class="sf-icon-btn" onclick="closeCropModal()">✖</button>
+    </div>
+
+    <div class="sf-modal__body">
+      <div class="sf-form sf-form--grid">
+        <div class="sf-field">
+          <label for="cropName">اسم المحصول</label>
+          <input type="text" id="cropName" placeholder="مثال: عنب أحمر" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropCategory">النوع</label>
+          <select id="cropCategory" required>
+            <option value="خضروات">خضروات</option>
+            <option value="فاكهة">فاكهة</option>
+            <option value="حبوب">حبوب</option>
+          </select>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropFarmId">المزرعة</label>
+          <select id="cropFarmId" required>
+            <option value="">اختر المزرعة</option>
+          </select>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropPrice">السعر (جنيه)</label>
+          <input type="number" id="cropPrice" placeholder="مثال: 40" min="1" step="1" required>
+        </div>
+
+        <div class="sf-field">
+          <label for="cropQuantity">الكمية المتاحة</label>
+          <input type="number" id="cropQuantity" placeholder="مثال: 100" min="1" step="1" required>
+        </div>
+
+        <div class="sf-field">
+         <div class="sf-field">
+  <label for="cropPhotoInput">صورة المحصول</label>
+  <input type="file" id="cropPhotoInput" accept="image/*">
+  <small class="sf-hint">PNG / JPG — حد أقصى 5MB</small>
+
+  <div id="cropPhotoPreview" class="sf-img-preview" hidden></div>
+</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sf-modal__footer">
+      <button type="button" class="sf-btn sf-btn--ghost" onclick="closeCropModal()">إلغاء</button>
+      <button type="button" class="sf-btn sf-btn--primary" onclick="saveCrop()">نشر في السوق</button>
+    </div>
+  </div>
+</div>
+    
+>>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e
 
     <script src="js/boot.js?v=20250603e"></script>
     <script src="js/config.js?v=20250603e"></script>

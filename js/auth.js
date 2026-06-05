@@ -327,40 +327,52 @@ async function fetchUserProfile(token) {
 }
 
 function applySessionUI() {
-  const name = localStorage.getItem("userName");
-  const token = localStorage.getItem("authToken");
-  const role = (localStorage.getItem("userRole") || "").toLowerCase();
+  const name  = localStorage.getItem('userName');
+  const token = localStorage.getItem('authToken');
 
-  const authButtons = document.getElementById("authButtons");
-  const userArea = document.getElementById("userArea");
-  const userDisplay = document.getElementById("userDisplayName");
-  const initialsEl = document.getElementById("userInitials");
-  const dashLink = document.getElementById("dashboardLink");
+  // ✅ normalize role
+  const roleRaw = localStorage.getItem('userRole') || '';
+  const role = String(roleRaw).trim().toLowerCase();
+
+  const authButtons = document.getElementById('authButtons');
+  const userArea    = document.getElementById('userArea');
+  const userDisplay = document.getElementById('userDisplayName');
+  const initialsEl  = document.getElementById('userInitials');
+  const dashLink    = document.getElementById('dashboardLink');
 
   if (!authButtons || !userArea) return;
 
   if (token && name) {
     authButtons.hidden = true;
-    authButtons.style.display = "none";
+    authButtons.style.display = 'none';
 
     userArea.hidden = false;
-    userArea.style.display = "flex";
+    userArea.style.display = 'flex';
 
-    const roleAr = role === "trader" ? "تاجر" : "مزارع";
-
-    if (dashLink) {
-      dashLink.textContent = role === "trader" ? "لوحة التاجر" : "لوحة المزارع";
-      dashLink.href = role === "trader" ? "trader-dashboard.html" : "farmer-dashboard.html";
-    }
+    const isTrader = (role === 'trader' || role === 'تاجر');
+    const roleAr = isTrader ? 'تاجر' : 'مزارع';
 
     if (userDisplay) userDisplay.textContent = `${name} (${roleAr})`;
     if (initialsEl) initialsEl.textContent = (name.trim().charAt(0) || "م").toUpperCase();
+
+    if (dashLink) {
+      dashLink.textContent = isTrader ? 'صفحة التاجر' : 'صفحة المزارع';
+
+      const target = isTrader ? 'trader-dashboard.html' : 'farmer-dashboard.html';
+      dashLink.href = target;
+
+      // نجبر التحويل حتى لو href أو CSS عاملين مشاكل
+      dashLink.onclick = (e) => {
+        e.preventDefault();
+        window.location.href = target;
+      };
+    }
+
   } else {
     authButtons.hidden = false;
-    authButtons.style.display = "flex";
-
+    authButtons.style.display = 'flex';
     userArea.hidden = true;
-    userArea.style.display = "none";
+    userArea.style.display = 'none';
   }
 }
 

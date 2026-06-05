@@ -106,7 +106,6 @@ body{
 
 /* Hero */
 .hero{
-    /* padding:24px 0 12px */
     margin: 30px 0px 180px 0px;
 }
 .hero__grid{
@@ -122,7 +121,6 @@ body{
   padding:10px 14px;
   border-radius:12px;
   cursor:pointer;
-  /* margin-top: 30px; */
   font-weight:700;
   width: 200px;
   height: 70px;
@@ -137,13 +135,11 @@ body{
   border-radius:22px;
   overflow:hidden;
   height:450px;
-  /* position: fixed; */
 }
 .hero__imgBox img{
   width:100%;
    height:100%; 
    object-fit:cover;
-   /* position: fixed; */
 }
 .hero__title{
   margin:0 0 10px;
@@ -219,9 +215,6 @@ body{
     .section1-category{
     width: 100%;
     height: 200px; 
-    /* margin-right: 10px; */
-    /* margin: auto; */
-    /* margin: 0px  auto 150px; */
     margin-bottom: 100px;
 
 }
@@ -283,12 +276,10 @@ body{
   border:1px solid var(--border);
   border-radius:18px;
   overflow:hidden;
-  /* width: 30%; */
   background:#fff;
 }
 .product-card__img{
   height:250px;
-  /* width: 30%; */
   background:var(--gray);
 }
 .product-card__img img{
@@ -531,7 +522,6 @@ object-fit:cover;
     width: 100%;
     height: 500px;
     background-color: rgba(127, 127, 127,0.1);
-    /* margin-top: -900px; */
     height: 400px;
     position: relative;
     bottom: 0;
@@ -541,7 +531,6 @@ object-fit:cover;
     width:18%;
     height: 170px;
     float: left;
-    /* margin-top: 100px; */
     
 
 }
@@ -560,19 +549,15 @@ object-fit:cover;
     height: 30px;
     margin-top: 47%;
     margin-left: 15%;
-    /* margin: 50px 200px; */
     color: white;
     border: 0;
-    /* font-size: 25px; */
     float: left;
     border-radius: 10px;
     
     background-color: green;
-    /* display: inline-block; */
 
 }
 .search-footer input{
-    /* display: inline-block; */
     float: right;
     height: 30px;
     font-size: 20px;
@@ -607,7 +592,6 @@ padding-top: 30px;
    width: 15%;
    float: left;
    margin-left: 200px;
-   /* text-align: right; */
 
 
 }
@@ -741,7 +725,7 @@ padding-top: 30px;
 .toast{
   position: fixed;
   bottom: 22px;
-  right: 22px; /* RTL: يمين */
+  right: 22px; 
   z-index: 200;
   background: rgba(31, 95, 34, 0.98);
   color: #fff;
@@ -776,7 +760,7 @@ padding-top: 30px;
 .panel { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
 .panel__title { color: #1a365d; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
 
-/* الحقول */
+
 .field { margin-bottom: 15px; }
 .field label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
 .field input, .field textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; font-family: inherit; }
@@ -786,11 +770,9 @@ padding-top: 30px;
 /* الأزرار */
 .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-family: inherit; }
 .btn--ghost { background: transparent; border: 1px solid #ccc; color: #333; }
-/* .btn--primary { background: #2e7d32; color: #fff; width: 100%; font-size: 16px; margin-top: 15px; transition: 0.3s; } */
 .btn--primary:hover { background: #1b5e20; }
 .btn--full { width: 100%; }
 
-/* ملخص الطلب */
 .checkout-items { margin-bottom: 20px; }
 .checkout-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
 .checkout-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
@@ -809,13 +791,12 @@ padding-top: 30px;
 .payment-card__title { font-weight: bold; display: block; }
 .payment-card__sub { font-size: 13px; color: #666; }
 
-/* تفاصيل البنك */
 .bankDetails { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #eee; }
 
-/* رسالة الخطأ */
+
 .checkout-msg { margin-top: 15px; text-align: center; font-weight: bold; color: red; }
 
-/* نافذة النجاح الكبيرة */
+
 .orderSuccessOverlay { 
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
   background: rgba(0,0,0,0.85); z-index: 9999; 
@@ -837,7 +818,7 @@ padding-top: 30px;
 .orderSuccessTitle { color: #1a365d; font-size: 28px; margin-bottom: 10px; }
 .orderSuccessText { color: #555; font-size: 16px; }
 
-/* متجاوب مع الموبايل */
+
 @media (max-width: 768px) {
   .checkout__grid { flex-direction: column; }
   .checkout__left { order: 2; }
@@ -1008,12 +989,12 @@ padding-top: 30px;
         .avatar { width: 80px; height: 80px; background: #2e7d32; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; font-weight: bold; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); text-transform: uppercase; }
         .farmer-name { font-size: 22px; color: #1a365d; font-weight: bold; }
 
-        /* الإحصائيات */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 20px; border-radius: 10px; text-align: center; border-top: 4px solid #2e7d32; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .stat-card h3 { font-size: 28px; color: #2e7d32; margin-bottom: 5px; }
 
-        /* الأقسام والكروت */
+
+
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .btn-add { background: #2e7d32; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 40px; }
@@ -1022,9 +1003,196 @@ padding-top: 30px;
         .card img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; margin-bottom: 10px; background: #eee; }
         
         /* النوافذ المنبثقة (Modals) */
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000;}
         .modal-box { background: white; padding: 25px; border-radius: 10px; width: 400px; max-width: 90%; position: relative;}
         .modal-box input, .modal-box select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; outline: none; font-family: 'Tajawal';}
+        /* ===== SmartFarm Modals (Professional UI) ===== */
+.sf-modal{
+  position: fixed;
+  inset: 0;
+  display: none;          
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(17, 24, 39, .55);
+  z-index: 9999;
+  direction: rtl;
+}
+
+.sf-modal__box{
+  width: min(720px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.22);
+  overflow: hidden;
+  border: 1px solid #eef2f7;
+}
+
+.sf-modal__header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f7fafc;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.sf-modal__header h3{
+  margin: 0;
+  font-size: 16px;
+  color: #14532d;
+  font-weight: 800;
+}
+
+.sf-icon-btn{
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.sf-modal__body{
+  padding: 16px;
+}
+
+.sf-form{
+  display: grid;
+  gap: 12px;
+}
+
+.sf-form--grid{
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 640px){
+  .sf-form--grid{ grid-template-columns: 1fr; }
+}
+
+.sf-field label{
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #111827;
+  font-weight: 700;
+}
+
+.sf-field input,
+.sf-field select{
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.sf-field input:focus,
+.sf-field select:focus{
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 4px rgba(46,125,50,.12);
+}
+
+.sf-hint{
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.sf-modal__footer{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 16px;
+  background: #fff;
+  border-top: 1px solid #eef2f7;
+}
+
+.sf-btn{
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sf-btn--primary{
+  background: #2e7d32;
+  color: #fff;
+}
+.sf-btn--primary:hover{ filter: brightness(.95); }
+
+.sf-btn--ghost{
+  background: #fff;
+  border-color: #e5e7eb;
+  color: #111827;
+}
+.sf-btn--ghost:hover{ background: #f9fafb; }
+
+.sf-img-preview{
+  margin-top:10px;
+  border:1px dashed #e5e7eb;
+  border-radius:12px;
+  padding:10px;
+  background:#fafafa;
+}
+.sf-img-preview img{
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-radius:10px;
+  display:block;
+}
+
+.sf-del-btn{
+  position: absolute;
+  top: 12px;
+  left: 12px;            
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+
+  border: 1px solid #fecaca;      
+  background: rgba(254, 226, 226, .75);
+  color: #b91c1c;
+
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+  user-select: none;
+  backdrop-filter: blur(6px);
+}
+
+.sf-del-btn:hover{
+  background: rgba(254, 202, 202, .95);
+  box-shadow: 0 10px 22px rgba(185, 28, 28, .18);
+  transform: translateY(-1px);
+}
+
+.sf-del-btn:active{
+  transform: translateY(0px) scale(.98);
+  box-shadow: none;
+}
+
+.sf-del-btn svg{
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.card{ position: relative; }
 
         /* //////////////////////////////////////////// */
         .nav-link{
@@ -1034,10 +1202,7 @@ padding-top: 30px;
         /* ////////////////////////////////////////////////// */
         /* 1. خلفية شفافة ورا النوافذ */
   .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
-      /* .modal--auth { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 10px; width: 400px; max-width: 90%; z-index: 2000; } */
       .modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-      /* .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: red; } */
-      /* الإخفاء الإجباري */
       [hidden] { display: none !important; }
  
  
@@ -1058,5 +1223,4 @@ padding-top: 30px;
     box-shadow: -2px 0 15px rgba(0,0,0,0.15); 
 }
 
-/* إخفاء إجباري لأي حاجة واخدة hidden */
 
