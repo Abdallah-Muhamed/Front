@@ -33,7 +33,8 @@ function pick(obj, ...keys) {
 function mapApiProduct(p) {
   const pid = pick(p, "pid", "Pid") ?? 0;
   const category = pick(p, "category", "Category") || "خضروات";
-  const img = CATEGORY_IMAGES[category] || DEFAULT_PRODUCT_IMG;
+  const photoUrl = pick(p, "photoUrl", "PhotoUrl");
+  const img = photoUrl || CATEGORY_IMAGES[category] || DEFAULT_PRODUCT_IMG;
   const price = Number(pick(p, "price", "Price") ?? 0);
   const rating = pick(p, "rating", "Rating");
 
@@ -91,7 +92,8 @@ function formatApiError(data, status, fallback) {
   if (raw) return raw;
 
   if (status === 409) return "Email is already registered.";
-  if (status === 401) return "Invalid Email or Password.";
+  if (status === 401) return "Unauthorized — please log in again.";
+  if (status === 403) return "Forbidden — you do not have access to this resource.";
   if (status === 400) return fallback || `Bad request (HTTP ${status})`;
   if (status) return fallback || `Request failed (HTTP ${status})`;
   return fallback || "Request failed.";
@@ -117,13 +119,21 @@ async function readResponse(res) {
 async function apiFetch(path, options = {}) {
   const url = `${getApiBase()}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = { ...(options.headers || {}) };
+  const needsAuth = options.auth !== false;
 
   if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
-    headers["Content-Type"] = "application/json";
+    headers["Content-Type"] = "application/json; charset=utf-8";
   }
 
   const token = getAuthToken();
-  if (token && options.auth !== false) {
+  if (needsAuth && !token) {
+    const err = new Error("Not logged in — please sign in first.");
+    err.status = 401;
+    err.data = { message: "Not logged in — please sign in first." };
+    throw err;
+  }
+
+  if (token && needsAuth) {
     headers.Authorization = `Bearer ${token}`;
   }
 
@@ -157,9 +167,28 @@ function syncCatalog(list) {
   for (const p of list) _byId.set(p.id, p);
 }
 
-async function loadProducts() {
+async function loadProducts(options = {}) {
+  const category = options.category || null;
+  const qs = category ? `?category=${encodeURIComponent(category)}` : "";
+
+  async function fetchCatalog(withAuth) {
+    return apiFetch(`/api/product${qs}`, {
+      method: "GET",
+      auth: withAuth ? true : false,
+    });
+  }
+
   try {
-    const data = await apiFetch("/api/product", { method: "GET", auth: false });
+    let data;
+    try {
+      data = await fetchCatalog(false);
+    } catch (e) {
+      if (e.status === 401 && isLoggedIn()) {
+        data = await fetchCatalog(true);
+      } else {
+        throw e;
+      }
+    }
     const list = (Array.isArray(data) ? data : []).map(mapApiProduct);
     syncCatalog(list);
     return list;

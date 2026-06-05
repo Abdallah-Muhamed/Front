@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة التاجر</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: #f4f7f6; }
+    .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .order-card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <h2 style="color:#2e7d32;margin:0;">لوحة التاجر</h2>
+      <div>
+        <a href="products.html" class="btn btn--primary" style="text-decoration:none;margin-left:8px;">تسوق</a>
+        <a href="index.html" class="btn btn--ghost" style="text-decoration:none;">الرئيسية</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h3>طلباتي</h3>
+    <div id="ordersList"><p style="color:#888;">جاري التحميل...</p></div>
+  </main>
+
+  <script src="js/boot.js?v=20250603d"></script>
+  <script src="js/config.js?v=20250603d"></script>
+  <script src="js/api.js?v=20250603d"></script>
+  <script src="js/auth.js?v=20250603d"></script>
+  <script>
+    (async function () {
+      const api = () => window.SmartFarmApi;
+      const el = document.getElementById("ordersList");
+
+      if (!api().getAuthToken()) {
+        el.innerHTML = "<p>يجب <a href='index.html'>تسجيل الدخول</a>.</p>";
+        return;
+      }
+
+      const role = (localStorage.getItem("userRole") || "").toLowerCase();
+      if (role && role !== "trader") {
+        el.innerHTML = "<p>هذه الصفحة للتجار. <a href='farmer-dashboard.html'>لوحة المزارع</a></p>";
+        return;
+      }
+
+      try {
+        const orders = await api().apiFetch("/api/order/me");
+        const list = Array.isArray(orders) ? orders : [];
+        if (!list.length) {
+          el.innerHTML = "<p style='color:#888;'>لا طلبات بعد. <a href='products.html'>تسوق الآن</a></p>";
+          return;
+        }
+        el.innerHTML = list.map(o => {
+          const name = o.productName || o.ProductName || "منتج";
+          const total = o.total_price ?? o.Total_price ?? 0;
+          const qty = o.quantity ?? o.Quantity ?? 0;
+          const status = o.status || o.Status || "—";
+          return `<div class="order-card">
+            <strong>${name}</strong>
+            <p>الكمية: ${qty} — الإجمالي: ${total} ج.م</p>
+            <p style="color:#666;font-size:13px;">الحالة: ${status}</p>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        el.innerHTML = "<p style='color:#e53e3e;'>" + api().formatApiError(e.data, e.status, e.message) + "</p>";
+      }
+    })();
+  </script>
+</body>
+</html>

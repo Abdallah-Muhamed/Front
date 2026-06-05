@@ -163,7 +163,7 @@ function renderProducts(list) {
   grid.innerHTML = "";
   if (!list.length) {
     grid.innerHTML =
-      '<p style="grid-column:1/-1;text-align:center;color:#718096;padding:24px;">لا توجد منتجات معروضة حالياً.</p>';
+      '<p style="grid-column:1/-1;text-align:center;color:#718096;padding:24px;">لا توجد منتجات. سجّل دخولك لعرض السوق أو أضف منتجات من لوحة المزارع.</p>';
     return;
   }
 
@@ -211,6 +211,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   initHomePage().catch((e) => console.error(e));
+
+  document.getElementById("btnShopNow")?.addEventListener("click", () => {
+    window.location.href = "products.html";
+  });
 
   if (typeof window.applySessionUI === "function") window.applySessionUI();
 

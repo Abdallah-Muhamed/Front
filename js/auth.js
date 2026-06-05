@@ -667,3 +667,6 @@ window.openLogin = function () {
 window.openRegister = function () {
   openModal("registerModal", "registerBackdrop", "block");
 };
+
+window.applySessionUI = applySessionUI;
+window.handleLogout = handleLogout;
