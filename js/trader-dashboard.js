@@ -169,21 +169,19 @@ async function renderMarketProducts() {
       return;
     }
 
-    const traderName = localStorage.getItem("userName") || "تاجر";
-
     grid.innerHTML = list.map((c) => {
       const id = c.id ?? c.Id;
       const img = c.img || c.photoUrl || "images/item2.jpg";
+      const seller = c.sellerLabel || `التاجر: ${c.sellerName || localStorage.getItem("userName") || "تاجر"}`;
 
       return `
         <div class="card" style="position:relative;">
           <button type="button" class="sf-del-btn" data-del="${id}">حذف</button>
 
-          <img src="${img}" alt="" onerror="this.style.display='none'">
+          <img src="${img}" alt="" onerror="this.src='images/item2.jpg'">
           <h4 style="margin:10px 0 6px;">${c.name}</h4>
 
-          <!-- ✅ اسم التاجر -->
-          <p class="sf-seller-line">التاجر: <strong>${traderName}</strong></p>
+          <p class="sf-seller-line">${seller}</p>
 
           <p style="color:#2e7d32; font-weight:bold; margin:0;">${c.price} ج.م</p>
           <p style="margin:6px 0 0; color:#666; font-size:13px;">الكمية: ${c.quantity ?? 0}</p>
@@ -235,12 +233,23 @@ async function renderOrders() {
 
     if (empty) empty.hidden = true;
 
-    grid.innerHTML = orders.map(o => {
-      const id = o.id ?? o.Id ?? o.orderId ?? "—";
-      const date = (o.createdAt || o.created_at || o.date || "").toString().slice(0, 10) || "—";
-      const total = o.total ?? o.totalPrice ?? o.total_price ?? 0;
+    // Get current user's uid from localStorage
+    const currentUid = parseInt(localStorage.getItem("uid") || "0");
 
-      const statusRaw = String(o.status || o.orderStatus || "pending").toLowerCase();
+    grid.innerHTML = orders.map(o => {
+      const id = o.Oid ?? o.id ?? o.Id ?? o.orderId ?? o.oid ?? "—";
+      const dateValue = o.Order_date ?? o.order_date ?? o.createdAt ?? o.created_at ?? o.date ?? o.Date ?? "";
+      const date = dateValue ? String(dateValue).slice(0, 10) : "—";
+      const total = o.Total_price ?? o.total ?? o.totalPrice ?? o.total_price ?? o.price ?? 0;
+      const orderUid = o.Uid ?? o.uid ?? o.Uid ?? o.uid ?? 0;
+
+      // Debug logging
+      console.log("Order data:", o);
+      console.log("Current UID:", currentUid);
+      console.log("Order UID:", orderUid);
+      console.log("Is buyer:", orderUid === currentUid);
+
+      const statusRaw = String(o.Status || o.status || o.orderStatus || "pending").toLowerCase();
       const statusClass =
         statusRaw.includes("accept") ? "order-status--accepted" :
         statusRaw.includes("reject") ? "order-status--rejected" :
@@ -256,6 +265,47 @@ async function renderOrders() {
       // عدد العناصر (لو API بيرجع items)
       const itemsCount = Array.isArray(o.items) ? o.items.length : (o.itemsCount ?? o.items_count ?? null);
 
+      // Determine if current user is buyer or seller
+      // If orderUid matches currentUid, user is buyer -> show seller info
+      // Otherwise, user is seller -> show buyer info
+      // Inverted logic based on user feedback
+      const isBuyer = orderUid !== currentUid;
+
+      const sellerPhone = o.SellerPhone || o.sellerPhone || "";
+      const sellerAddress = o.SellerAddress || o.sellerAddress || "";
+      const sellerCity = o.SellerCity || o.sellerCity || "";
+      const buyerPhone = o.BuyerPhone || o.buyerPhone || "";
+      const buyerAddress = o.BuyerAddress || o.buyerAddress || "";
+      const buyerCity = o.BuyerCity || o.buyerCity || "";
+
+      console.log("Seller info:", { sellerPhone, sellerAddress, sellerCity });
+      console.log("Buyer info:", { buyerPhone, buyerAddress, buyerCity });
+
+      let contactInfo = "";
+      if (isBuyer) {
+        // Show seller info to buyer
+        if (sellerPhone || sellerAddress) {
+          contactInfo = `
+            <div style="margin-top:10px; padding:10px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0;">
+              <p style="margin:0 0 5px; font-size:13px; color:#166534; font-weight:bold;">📞 بيانات البائع:</p>
+              ${sellerPhone ? `<p style="margin:0; font-size:12px; color:#166534;">📱 الهاتف: ${sellerPhone}</p>` : ""}
+              ${sellerAddress ? `<p style="margin:0; font-size:12px; color:#166534;">📍 العنوان: ${sellerAddress}${sellerCity ? `, ${sellerCity}` : ""}</p>` : ""}
+            </div>
+          `;
+        }
+      } else {
+        // Show buyer info to seller
+        if (buyerPhone || buyerAddress) {
+          contactInfo = `
+            <div style="margin-top:10px; padding:10px; background:#eff6ff; border-radius:8px; border:1px solid #bfdbfe;">
+              <p style="margin:0 0 5px; font-size:13px; color:#1e40af; font-weight:bold;">📞 بيانات المشتري:</p>
+              ${buyerPhone ? `<p style="margin:0; font-size:12px; color:#1e40af;">📱 الهاتف: ${buyerPhone}</p>` : ""}
+              ${buyerAddress ? `<p style="margin:0; font-size:12px; color:#1e40af;">📍 العنوان: ${buyerAddress}${buyerCity ? `, ${buyerCity}` : ""}</p>` : ""}
+            </div>
+          `;
+        }
+      }
+
       return `
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
@@ -269,6 +319,10 @@ async function renderOrders() {
           <p style="margin:10px 0 0; color:#2e7d32; font-weight:bold;">
             الإجمالي: ${Number(total) || 0} ج.م
           </p>
+
+          ${contactInfo}
+
+          <button class="btn btn--ghost" style="margin-top:15px; width:100%;" onclick="window.location.href='order-details.html?id=${id}'">عرض التفاصيل</button>
         </div>
       `;
     }).join("");
@@ -280,39 +334,64 @@ async function renderOrders() {
   }
 }
 
+let _traderPhotoFile = null;
+
+function initTraderPhotoPicker() {
+  const input = document.getElementById("cropPhotoInput");
+  const preview = document.getElementById("cropPhotoPreview");
+  if (!input) return;
+  input.addEventListener("change", () => {
+    const file = input.files?.[0] || null;
+    _traderPhotoFile = file;
+    if (!file || !preview) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("الصورة كبيرة — الحد 5MB");
+      input.value = "";
+      _traderPhotoFile = null;
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    preview.innerHTML = `<img src="${url}" alt="preview" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;">`;
+    preview.hidden = false;
+  });
+}
+
 async function saveCrop() {
   const cName = document.getElementById("cropName")?.value?.trim();
   const cPrice = Number(document.getElementById("cropPrice")?.value);
   const cCat = document.getElementById("cropCategory")?.value;
   const qty = Number(document.getElementById("cropQuantity")?.value);
 
-  const imgUrl = document.getElementById("cropImg")?.value?.trim() || "";
-
   if (!cName) return alert("اكتب اسم المحصول!");
   if (!Number.isFinite(cPrice) || cPrice <= 0) return alert("اكتب سعر صحيح!");
   if (!Number.isFinite(qty) || qty <= 0) return alert("اكتب كمية صحيحة!");
 
   try {
+    let photoUrl = null;
+    if (_traderPhotoFile) {
+      photoUrl = await api().uploadProductPhoto(_traderPhotoFile);
+    }
 
-    await api().apiFetch("/api/Product", {
+    await api().apiFetch("/api/product", {
       method: "POST",
       body: {
         description: cName,
         price: cPrice,
         category: cCat,
         quantity: qty,
+        photoUrl,
         added_date: api().todayIsoDate(),
-        ...(imgUrl ? { img: imgUrl } : {}) 
       },
     });
 
     closeCropModal();
+    _traderPhotoFile = null;
     document.getElementById("cropName").value = "";
     document.getElementById("cropPrice").value = "";
     document.getElementById("cropQuantity").value = "";
-    document.getElementById("cropImg").value = "";
+    const preview = document.getElementById("cropPhotoPreview");
+    if (preview) { preview.hidden = true; preview.innerHTML = ""; }
 
-    alert("تم نشر المنتج في السوق بنجاح!");
     await renderMarketProducts();
   } catch (e) {
     alert(e.message || "تعذّر نشر المنتج.");
@@ -325,8 +404,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (typeof window.applySessionUI === "function") window.applySessionUI();
 
-   await loadProfile();
-  // await renderFarms();
+  initTraderPhotoPicker();
+  await loadProfile();
   await renderMarketProducts();
   await renderOrders();
 });

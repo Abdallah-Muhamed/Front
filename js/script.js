@@ -45,27 +45,15 @@ function showToast(text) {
 function openCart() {
   const bd = document.getElementById("cartBackdrop");
   const md = document.getElementById("cartModal");
-  if (bd) {
-    bd.hidden = false;
-    bd.style.display = "block";
-  }
-  if (md) {
-    md.hidden = false;
-    md.style.display = "flex";
-  }
+  if (bd) { bd.removeAttribute("hidden"); bd.style.display = "block"; }
+  if (md) { md.removeAttribute("hidden"); md.style.display = "flex"; }
   renderCart();
 }
 function closeCart() {
   const bd = document.getElementById("cartBackdrop");
   const md = document.getElementById("cartModal");
-  if (bd) {
-    bd.hidden = true;
-    bd.style.display = "none";
-  }
-  if (md) {
-    md.hidden = true;
-    md.style.display = "none";
-  }
+  if (bd) { bd.style.display = "none"; }
+  if (md) { md.style.display = "none"; }
 }
 window.openCart = openCart;
 window.closeCart = closeCart;
@@ -170,10 +158,14 @@ function renderProducts(list) {
   for (const p of list) {
     const card = document.createElement("div");
     card.className = "product-card";
+    const seller = p.sellerLabel
+      ? `<p class="product-card__seller" style="font-size:12px;color:#6b7280;margin:4px 0 8px;">${p.sellerLabel}</p>`
+      : "";
     card.innerHTML = `
-      <div class="product-card__img"><img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'"></div>
+      <div class="product-card__img"><img src="${p.img}" alt="${p.name}" onerror="this.src='images/item2.jpg'"></div>
       <div class="product-card__body">
         <h3 class="product-card__title">${p.name}</h3>
+        ${seller}
         <div class="product-card__meta"><span class="price">${money(p.price)}</span></div>
         <div class="product-card__actions">
           <button class="add-btn" onclick="addToCartCore(${p.id})">أضف للسلة 🛒</button>
@@ -229,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 window.addEventListener("authLogin", () => {
   if (typeof window.applySessionUI === "function") window.applySessionUI();
+  updateCartBadge();
 });
 window.addEventListener("authLogout", () => {
   if (typeof window.applySessionUI === "function") window.applySessionUI();

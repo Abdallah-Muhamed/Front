@@ -6,21 +6,11 @@ let byId = new Map();
 
 const $ = (sel) => document.querySelector(sel);
 
-function getCart() {
-  return api().getCart();
-}
-function setCart(cart) {
-  api().setCart(cart);
-}
-function formatMoney(n) {
-  return api().formatMoney(n);
-}
-function cartCount(cart) {
-  return api().cartCount(cart);
-}
-function cartTotal(cart) {
-  return api().cartTotal(cart, byId);
-}
+function getCart() { return api().getCart(); }
+function setCart(cart) { api().setCart(cart); }
+function formatMoney(n) { return api().formatMoney(n); }
+function cartCount(cart) { return api().cartCount(cart); }
+function cartTotal(cart) { return api().cartTotal(cart, byId); }
 
 function requireLogin() {
   if (api().isLoggedIn()) return true;
@@ -36,19 +26,23 @@ const btnConfirmOrder = $("#btnConfirmOrder");
 const checkoutMsg = $("#checkoutMsg");
 const paymentMethods = $("#paymentMethods");
 const orderSuccessOverlay = $("#orderSuccessOverlay");
-const bankDetails = $("#bankDetails");
+const cardDetails = $("#cardDetails");
+const walletDetails = $("#walletDetails");
+const codDetails = $("#codDetails");
 
-function toggleBankDetails(methodId) {
-  if (!bankDetails) return;
-  bankDetails.hidden = methodId !== "visa";
+function togglePaymentPanels(methodId) {
+  if (cardDetails) cardDetails.hidden = methodId !== "card";
+  if (walletDetails) walletDetails.hidden = methodId !== "wallet";
+  if (codDetails) codDetails.hidden = methodId !== "cod";
 }
 
 function renderPaymentMethods() {
   if (!paymentMethods) return;
 
   const paymentOptions = [
-    { id: "cash", title: "الدفع عند الاستلام", sub: "كاش عند توصيل الطلب" },
-    { id: "visa", title: "بطاقة بنكية", sub: "الدفع إلكترونيًا" },
+    { id: "card", title: "بطاقة بنكية", sub: "محاكاة Stripe — بطاقة 4242 4242 4242 4242" },
+    { id: "wallet", title: "محفظة إلكترونية", sub: "محاكاة فودافون كاش — OTP: 123456" },
+    { id: "cod", title: "الدفع عند الاستلام", sub: "ادفع نقداً عند استلام الطلب" },
   ];
 
   paymentMethods.innerHTML = "";
@@ -70,20 +64,26 @@ function renderPaymentMethods() {
 function attachPaymentChange() {
   const radios = document.querySelectorAll('input[name="payment"]');
   radios.forEach((r) => {
-    r.addEventListener("change", () => toggleBankDetails(r.value));
+    r.addEventListener("change", () => {
+      document.querySelectorAll(".payment-card").forEach((el) => el.classList.remove("payment-card--active"));
+      r.closest(".payment-card")?.classList.add("payment-card--active");
+      togglePaymentPanels(r.value);
+    });
   });
   const checked = document.querySelector('input[name="payment"]:checked');
-  if (checked) toggleBankDetails(checked.value);
+  if (checked) togglePaymentPanels(checked.value);
 }
 
-function showOrderSuccess() {
+function showOrderSuccess(txId) {
   if (orderSuccessOverlay) {
     orderSuccessOverlay.hidden = false;
     requestAnimationFrame(() => orderSuccessOverlay.classList.add("show"));
+    const txEl = document.getElementById("orderTxId");
+    if (txEl && txId) txEl.textContent = `رقم العملية: ${txId}`;
   }
   if (checkoutMsg) {
     checkoutMsg.hidden = false;
-    checkoutMsg.textContent = "تم تأكيد الطلب ✅";
+    checkoutMsg.textContent = "تم تأكيد الطلب والدفع ✅";
   }
 }
 
@@ -115,7 +115,7 @@ function renderCheckout() {
     const row = document.createElement("div");
     row.className = "checkout-item";
     row.innerHTML = `
-      <img src="${p.img}" alt="${p.name}">
+      <img src="${p.img}" alt="${p.name}" onerror="this.src='images/item2.jpg'">
       <div>
         <div class="checkout-item__name">${p.name}</div>
         <div class="checkout-item__meta">السعر: ${formatMoney(p.price)}</div>
@@ -153,32 +153,51 @@ function renderCheckout() {
   });
 }
 
+async function processPayment(total, method) {
+  if (method === "cod") {
+    // Cash on delivery - no payment processing needed
+    return { success: true, transactionId: "COD-" + Date.now() };
+  }
+
+  if (method === "card") {
+    const cardNumber = document.getElementById("cardNumber")?.value || "";
+    const cardName = document.getElementById("cardName")?.value || "";
+    const cardExp = document.getElementById("cardExp")?.value || "";
+    const cardCvv = document.getElementById("cardCvv")?.value || "";
+    return api().apiFetch("/api/payment/card", {
+      method: "POST",
+      body: { cardNumber, cardName, expiry: cardExp, cvv: cardCvv, amount: total, currency: "EGP" },
+    });
+  }
+
+  const phone = document.getElementById("walletPhone")?.value || "";
+  const otp = document.getElementById("walletOtp")?.value || "";
+  return api().apiFetch("/api/payment/wallet", {
+    method: "POST",
+    body: { phone, otp, amount: total, provider: "vodafone_cash" },
+  });
+}
+
 btnConfirmOrder?.addEventListener("click", async () => {
   if (!requireLogin()) return;
 
   const cart = getCart();
   if (cartCount(cart) === 0) {
-    if (checkoutMsg) {
-      checkoutMsg.hidden = false;
-      checkoutMsg.textContent = "السلة فارغة.";
-    }
+    if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = "السلة فارغة."; }
     return;
   }
 
   const checked = document.querySelector('input[name="payment"]:checked');
   const payment = checked ? checked.value : null;
-
   if (!payment) {
-    if (checkoutMsg) {
-      checkoutMsg.hidden = false;
-      checkoutMsg.textContent = "اختر طريقة دفع أولًا.";
-    }
+    if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = "اختر طريقة دفع أولًا."; }
     return;
   }
 
   const notes = document.getElementById("orderNotes")?.value?.trim() || "";
   const orderDate = api().todayIsoDate();
   const items = [];
+  const total = cartTotal(cart);
 
   for (const [pidStr, qty] of Object.entries(cart)) {
     const pid = Number(pidStr);
@@ -194,36 +213,37 @@ btnConfirmOrder?.addEventListener("click", async () => {
   }
 
   if (!items.length) {
-    if (checkoutMsg) {
-      checkoutMsg.hidden = false;
-      checkoutMsg.textContent = "لا توجد منتجات صالحة في السلة.";
-    }
+    if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = "لا توجد منتجات صالحة."; }
     return;
   }
 
   btnConfirmOrder.disabled = true;
-  if (checkoutMsg) {
-    checkoutMsg.hidden = false;
-    checkoutMsg.textContent = "جاري إرسال الطلب...";
-  }
+  if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = "جاري معالجة الدفع..."; }
 
   try {
+    const payResult = await processPayment(total, payment);
+    if (!payResult?.success && payResult?.Success !== true) {
+      throw new Error(payResult?.message || payResult?.Message || "فشل الدفع.");
+    }
+
+    const txId = payResult.transactionId || payResult.TransactionId;
+
+    if (checkoutMsg) checkoutMsg.textContent = "تم الدفع — جاري إنشاء الطلب...";
+
     await api().apiFetch("/api/order/batch", {
       method: "POST",
       body: {
         items,
-        payment_method: payment === "visa" ? "card" : "cash",
+        payment_method: payment === "card" ? `card:${txId}` : payment === "wallet" ? `wallet:${txId}` : `cod:${txId}`,
         order_notes: notes || null,
       },
     });
 
-    showOrderSuccess();
+    showOrderSuccess(txId);
     setCart({});
     renderCheckout();
 
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 2000);
+    setTimeout(() => { window.location.href = "index.html"; }, 2500);
   } catch (e) {
     console.error(e);
     btnConfirmOrder.disabled = false;
@@ -236,10 +256,8 @@ btnConfirmOrder?.addEventListener("click", async () => {
 
 async function initCheckout() {
   if (!requireLogin()) return;
-
-  const list = await api().loadProducts();
+  await api().loadProducts();
   byId = api().byId;
-
   renderPaymentMethods();
   attachPaymentChange();
   renderCheckout();
@@ -247,4 +265,28 @@ async function initCheckout() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initCheckout().catch((e) => console.error(e));
+
+  // Auto-format card number with spaces every 4 digits
+  const cardNumberInput = document.getElementById("cardNumber");
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener("input", (e) => {
+      let value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+      value = value.substring(0, 16); // Max 16 digits
+      // Add space every 4 digits
+      const formatted = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+      e.target.value = formatted;
+    });
+  }
+
+  // Auto-format card expiry to MM/YY
+  const cardExpInput = document.getElementById("cardExp");
+  if (cardExpInput) {
+    cardExpInput.addEventListener("input", (e) => {
+      let value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+      if (value.length >= 2) {
+        value = value.substring(0, 2) + "/" + value.substring(2, 4);
+      }
+      e.target.value = value;
+    });
+  }
 });

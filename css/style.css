@@ -55,9 +55,12 @@ body{
   background:#f9fafb;
 }
 .actions{
-    display:flex;
+    display:flex !important;
      align-items:center;
-      gap:12px}
+      gap:12px;
+      visibility: visible !important;
+      opacity: 1 !important;
+}
 .btn{
   border:1px solid var(--border);
   background:#fff;
@@ -91,6 +94,12 @@ body{
   border-radius:14px;
   cursor:pointer;
   font-size:18px;
+  display: flex !important;
+  align-items: center;
+  gap: 4px;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 10;
 }
 .cart-badge{
   position:absolute;
@@ -628,6 +637,12 @@ padding-top: 30px;
 /* ///////////////////////index.html//////////////////////////////// */
 /* //////////////////////////prducts.html///////////////////////////////////////// */
 .store{padding:18px 0 60px}
+.store .cart-btn{
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 100 !important;
+}
 .store__titleRow{
   display:flex; justify-content:space-between; align-items:flex-end; gap:14px;
   margin-bottom:16px;
@@ -1011,7 +1026,7 @@ padding-top: 30px;
 .sf-modal{
   position: fixed;
   inset: 0;
-  display: none;          
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 18px;
@@ -1020,13 +1035,15 @@ padding-top: 30px;
   direction: rtl;
 }
 
+
 .sf-modal__box{
   width: min(720px, 100%);
+  max-height: 600px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0,0,0,.22);
-  overflow: hidden;
   border: 1px solid #eef2f7;
+  overflow-y: auto;
 }
 
 .sf-modal__header{
@@ -1058,6 +1075,13 @@ padding-top: 30px;
 
 .sf-modal__body{
   padding: 16px;
+}
+
+#farmMapPicker {
+  height: 200px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .sf-form{
@@ -1106,6 +1130,7 @@ padding-top: 30px;
 }
 
 .sf-modal__footer{
+  flex-shrink: 0;
   display: flex;
   gap: 10px;
   justify-content: flex-end;

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الملف الشخصي - سوق المزرعة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/all.css">
+    <style>
+        .profile-view-mode { display: none; }
+        .profile-view-mode.active { display: block; }
+        .profile-edit-mode { display: none; }
+        .profile-edit-mode.active { display: block; }
+        .info-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 16px;
+            color: #111827;
+            font-weight: 500;
+        }
+        .info-value.empty {
+            color: #9ca3af;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <div class="brand">
+                <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
+            </div>
+            <nav class="actions">
+                <button class="btn btn--ghost" onclick="window.location.href='index.html'">← رجوع للرئيسية</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="store">
+        <div class="container">
+            <div class="section__head">
+                <h2>الملف الشخصي</h2>
+            </div>
+
+            <div class="card" style="max-width: 700px; margin: 0 auto;">
+                <div id="profileLoading" style="text-align: center; padding: 40px; color: #666;">
+                    جاري تحميل البيانات...
+                </div>
+
+                <!-- View Mode -->
+                <div id="viewMode" class="profile-view-mode">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div id="viewAvatar" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #2f7d32; background: #f0f0f0; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 48px;">
+                            👤
+                        </div>
+                        <h3 id="viewName" style="margin: 0; color: #111827; font-size: 24px;"></h3>
+                        <p id="viewEmail" style="margin: 5px 0 0; color: #6b7280; font-size: 14px;"></p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">رقم الهاتف</div>
+                        <div id="viewPhones" class="info-value"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">المدينة / المحافظة</div>
+                        <div id="viewCity" class="info-value"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-label">العنوان التفصيلي</div>
+                        <div id="viewAddress" class="info-value"></div>
+                    </div>
+
+                    <button id="editBtn" class="btn btn--primary" style="width: 100%; margin-top: 20px;">
+                        <i class="fas fa-edit" style="margin-left: 8px;"></i> تعديل البيانات
+                    </button>
+                </div>
+
+                <!-- Edit Mode -->
+                <div id="editMode" class="profile-edit-mode">
+                    <form id="editProfileForm" class="auth-form">
+                        <!-- صورة البروفايل -->
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <span class="avatar-placeholder">📷</span>
+                            </div>
+                            <label class="avatar-upload-btn" for="profilePhotoInput">تغيير الصورة</label>
+                            <input type="file" id="profilePhotoInput" name="profile_photo" accept="image/*" hidden />
+                            <button type="button" id="deletePhotoBtn" class="btn btn--ghost" style="font-size: 12px; margin-top: 5px;" hidden>حذف الصورة</button>
+                            <span class="avatar-hint">JPG, PNG — حجم أقصى 5MB</span>
+                        </div>
+
+                        <!-- الاسم -->
+                        <div style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label>الاسم الأول</label>
+                                <input name="first_name" id="firstName" required placeholder="مثال: أحمد" />
+                            </div>
+                            <div style="flex:1;">
+                                <label>الاسم الأخير</label>
+                                <input name="last_name" id="lastName" required placeholder="مثال: علي" />
+                            </div>
+                        </div>
+
+                        <label>البريد الإلكتروني</label>
+                        <input name="email" id="email" required type="email" placeholder="name@example.com" />
+
+                        <!-- الموقع — auto-fill من GPS ويمكن تعديله يدوياً -->
+                        <div class="location-detect">
+                            <button type="button" class="location-detect-btn" id="btnDetectLocation">📍 تحديد موقعي</button>
+                            <span id="locationStatus">اضغط لتحديد موقعك تلقائياً</span>
+                        </div>
+
+                        <label>المدينة / المحافظة</label>
+                        <input name="city_name" id="cityName" required placeholder="مثال: القاهرة" />
+
+                        <label>العنوان التفصيلي</label>
+                        <input name="address_line" id="addressLine" required placeholder="مثال: شارع النصر، رقم 5" />
+
+                        <!-- أرقام الهاتف -->
+                        <label>أرقام الهاتف</label>
+                        <div id="phonesContainer"></div>
+                        <button type="button" id="addPhoneBtn" class="btn btn--ghost" style="margin-top: 10px; font-size: 14px;">
+                            + إضافة رقم هاتف
+                        </button>
+
+                        <div id="saveMessage" style="margin-top: 15px; padding: 10px; border-radius: 8px; display: none;"></div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" class="btn btn--primary" style="flex: 1;">حفظ التغييرات</button>
+                            <button type="button" id="cancelBtn" class="btn btn--ghost" style="flex: 1;">إلغاء</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/boot.js?v=20250608"></script>
+    <script src="js/config.js?v=20250608"></script>
+    <script src="js/api.js?v=20250608"></script>
+    <script src="js/auth.js?v=20250608"></script>
+    <script src="js/profile.js?v=20250626"></script>
+</body>
+</html>

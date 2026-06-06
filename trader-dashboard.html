@@ -1,140 +1,60 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- <<<<<<< HEAD -->
-  <meta charset="UTF-8">
-  <title>لوحة التاجر</title>
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { background: #f4f7f6; }
-    .container { max-width: 900px; margin: 0 auto; padding: 24px; }
-    .order-card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-  </style>
-</head>
-<body>
-  <header class="topbar">
-    <div class="container topbar__inner">
-      <!-- <h2 style="color:#2e7d32;margin:0;">لوحة التاجر</h2> -->
-      <div>
-        <a href="products.html" class="btn btn--primary" style="text-decoration:none;margin-left:8px;">تسوق</a>
-        <a href="index.html" class="btn btn--ghost" style="text-decoration:none;">الرئيسية</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- <main class="container">
-    <h3>طلباتي</h3>
-    <div id="ordersList"><p style="color:#888;">جاري التحميل...</p></div>
-  </main> -->
-
-  
-  <script>
-    (async function () {
-      const api = () => window.SmartFarmApi;
-      const el = document.getElementById("ordersList");
-
-      if (!api().getAuthToken()) {
-        el.innerHTML = "<p>يجب <a href='index.html'>تسجيل الدخول</a>.</p>";
-        return;
-      }
-
-      const role = (localStorage.getItem("userRole") || "").toLowerCase();
-      if (role && role !== "trader") {
-        el.innerHTML = "<p>هذه الصفحة للتجار. <a href='farmer-dashboard.html'>لوحة المزارع</a></p>";
-        return;
-      }
-
-      try {
-        const orders = await api().apiFetch("/api/order/me");
-        const list = Array.isArray(orders) ? orders : [];
-        if (!list.length) {
-          el.innerHTML = "<p style='color:#888;'>لا طلبات بعد. <a href='products.html'>تسوق الآن</a></p>";
-          return;
-        }
-        el.innerHTML = list.map(o => {
-          const name = o.productName || o.ProductName || "منتج";
-          const total = o.total_price ?? o.Total_price ?? 0;
-          const qty = o.quantity ?? o.Quantity ?? 0;
-          const status = o.status || o.Status || "—";
-          return `<div class="order-card">
-            <strong>${name}</strong>
-            <p>الكمية: ${qty} — الإجمالي: ${total} ج.م</p>
-            <p style="color:#666;font-size:13px;">الحالة: ${status}</p>
-          </div>`;
-        }).join("");
-      } catch (e) {
-        el.innerHTML = "<p style='color:#e53e3e;'>" + api().formatApiError(e.data, e.status, e.message) + "</p>";
-      }
-    })();
-  </script>
-</body>
-</html>
-<!-- ======= -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>صفحة التاجر</title>
-
-
   <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
 
   <header>
-    <div class="container header-inner">
-        <div class="brand__icon"  style="display: inline-block;"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
-      <button onclick="window.location.href='index.html'"
-              style="padding:8px 15px; cursor:pointer; border:1px solid #ccc; background:white; border-radius:5px;display: inline-block; float: left;">
-        ← العودة للرئيسية
-      </button>
+    <div class="container header-inner" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="color:#2e7d32;margin:0;">لوحة التاجر</h2>
+      <div style="display:flex;gap:8px;">
+        <a href="products.html" class="btn btn--primary" style="text-decoration:none;">تسوق</a>
+        <button type="button" onclick="window.location.href='index.html'" class="btn btn--ghost">← الرئيسية</button>
+      </div>
     </div>
   </header>
 
   <div class="container">
-
-    <!-- Profile -->
     <div class="profile-area">
       <div class="avatar" id="profileAvatar">ت</div>
       <div class="farmer-name" id="profileName">اسم التاجر</div>
-      <p style="color:#666; font-size:14px;">حساب تاجر معتمد</p>
+      <p style="color:#666;font-size:14px;">حساب تاجر معتمد</p>
     </div>
 
-    <!-- Stats -->
     <div class="stats-grid">
-      <div class="stat-card">
-        <h3 id="countCrops">0</h3>
-        <p>محاصيلي المعروضة للبيع</p>
-      </div>
-      <div class="stat-card">
-        <h3 id="sumStock">0</h3>
-        <p>إجمالي الكميات</p>
-      </div>
+      <div class="stat-card"><h3 id="countCrops">0</h3><p>منتجاتي بالسوق</p></div>
+      <div class="stat-card"><h3 id="sumStock">0</h3><p>إجمالي الكميات</p></div>
     </div>
 
-    <!-- Products Section -->
     <div class="section-header">
-      <h2>محاصيلي المعروضة للبيع</h2>
-      <button class="btn-add" onclick="openCropModal()">+ إضافة محصول للسوق</button>
+      <h2>منتجاتي المعروضة للبيع</h2>
+      <button class="btn-add" onclick="openCropModal()">+ إضافة منتج للسوق</button>
     </div>
-
     <div class="grid-cards" id="cropsGrid"></div>
+
+    <div class="section-header" style="margin-top:25px;">
+      <h2>طلباتي</h2>
+    </div>
+    <div class="grid-cards" id="ordersGrid"></div>
+    <p id="ordersEmpty" style="color:#888;margin-top:10px;" hidden>لا توجد طلبات حتى الآن.</p>
   </div>
 
-  <!-- Add Product Modal -->
   <div class="sf-modal" id="cropModal">
     <div class="sf-modal__box">
       <div class="sf-modal__header">
-        <h3>إضافة محصول وعرضه بالسوق</h3>
+        <h3>إضافة منتج للسوق</h3>
         <button type="button" class="sf-icon-btn" onclick="closeCropModal()">✖</button>
       </div>
-
       <div class="sf-modal__body">
         <div class="sf-form sf-form--grid">
           <div class="sf-field">
-            <label for="cropName">اسم المحصول</label>
+            <label for="cropName">اسم المنتج</label>
             <input type="text" id="cropName" placeholder="مثال: عنب أحمر" required>
           </div>
-
           <div class="sf-field">
             <label for="cropCategory">النوع</label>
             <select id="cropCategory" required>
@@ -143,25 +63,21 @@
               <option value="حبوب">حبوب</option>
             </select>
           </div>
-
           <div class="sf-field">
             <label for="cropPrice">السعر (جنيه)</label>
-            <input type="number" id="cropPrice" placeholder="مثال: 40" min="1" step="1" required>
+            <input type="number" id="cropPrice" min="1" step="1" required>
           </div>
-
           <div class="sf-field">
-            <label for="cropQuantity">الكمية المتاحة</label>
-            <input type="number" id="cropQuantity" placeholder="مثال: 100" min="1" step="1" required>
+            <label for="cropQuantity">الكمية</label>
+            <input type="number" id="cropQuantity" min="1" step="1" required>
           </div>
-
           <div class="sf-field" style="grid-column:1/-1;">
-            <label for="cropImg">رابط صورة (اختياري)</label>
-            <input type="text" id="cropImg" placeholder="https://...">
-            <small class="sf-hint">رفع صورة من الجهاز يحتاج Endpoint للرفع في الـ API</small>
+            <label for="cropPhotoInput">صورة المنتج</label>
+            <input type="file" id="cropPhotoInput" accept="image/*">
+            <div id="cropPhotoPreview" class="sf-img-preview" hidden></div>
           </div>
         </div>
       </div>
-
       <div class="sf-modal__footer">
         <button type="button" class="sf-btn sf-btn--ghost" onclick="closeCropModal()">إلغاء</button>
         <button type="button" class="sf-btn sf-btn--primary" onclick="saveCrop()">نشر في السوق</button>
@@ -169,49 +85,26 @@
     </div>
   </div>
 
-<!-- قسم الطلبات السابقة -->
-<div class="section-header" style="margin-top:25px;">
-  <h2>الطلبات السابقة</h2>
-</div>
-
-<div class="grid-cards" id="ordersGrid"></div>
-<!-- <h3 id="countCrops">0</h3>
-<h3 id="sumStock">0</h3> -->
-<p id="ordersEmpty" style="color:#888; margin-top:10px;" hidden>
-  لا توجد طلبات حتى الآن.
-</p>
-
-<!-- Confirm Delete Modal -->
-<div class="sf-modal" id="confirmModal">
-  <div class="sf-modal__box" style="width:min(520px, 100%);">
-    <div class="sf-modal__header">
-      <h3 id="confirmTitle">تأكيد العملية</h3>
-      <button type="button" class="sf-icon-btn" onclick="closeConfirm()">✖</button>
-    </div>
-
-    <div class="sf-modal__body">
-      <p id="confirmMessage" style="margin:0; color:#374151; line-height:1.7;">
-        هل أنت متأكد؟
-      </p>
-    </div>
-
-    <div class="sf-modal__footer">
-      <button type="button" class="sf-btn sf-btn--ghost" onclick="closeConfirm()">إلغاء</button>
-      <button type="button" class="sf-btn" id="confirmOkBtn"
-              style="background:#b91c1c; color:#fff;">
-        حذف
-      </button>
+  <div class="sf-modal" id="confirmModal">
+    <div class="sf-modal__box" style="width:min(520px,100%);">
+      <div class="sf-modal__header">
+        <h3 id="confirmTitle">تأكيد العملية</h3>
+        <button type="button" class="sf-icon-btn" onclick="closeConfirm()">✖</button>
+      </div>
+      <div class="sf-modal__body">
+        <p id="confirmMessage" style="margin:0;color:#374151;line-height:1.7;">هل أنت متأكد؟</p>
+      </div>
+      <div class="sf-modal__footer">
+        <button type="button" class="sf-btn sf-btn--ghost" onclick="closeConfirm()">إلغاء</button>
+        <button type="button" class="sf-btn" id="confirmOkBtn" style="background:#b91c1c;color:#fff;">حذف</button>
+      </div>
     </div>
   </div>
-</div>
 
-
-
-  <script src="js/boot.js?v=20250603c"></script>
-    <script src="js/config.js?v=20250603c"></script>
-    <script src="js/api.js?v=20250603c"></script>
-    <script src="js/auth.js?v=20250603c"></script>
-  <script src="js/trader-dashboard.js?v=20250603c"></script>
+  <script src="js/boot.js?v=20250608"></script>
+  <script src="js/config.js?v=20250608"></script>
+  <script src="js/api.js?v=20250608"></script>
+  <script src="js/auth.js?v=20250608"></script>
+  <script src="js/trader-dashboard.js?v=20250615"></script>
 </body>
 </html>
-<!-- >>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e -->

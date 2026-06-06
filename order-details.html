@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الطلب</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar__inner">
+            <div class="brand">
+                <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
+            </div>
+            <nav class="actions">
+                <button class="btn btn--ghost" onclick="window.history.back()">← رجوع</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="store">
+        <div class="container">
+            <div class="section__head">
+                <h2>تفاصيل الطلب</h2>
+            </div>
+
+            <div id="orderDetails" class="card" style="max-width: 800px; margin: 0 auto;">
+                <p style="text-align: center; color: #666;">جاري تحميل البيانات...</p>
+            </div>
+
+            <div id="orderError" class="card" style="max-width: 800px; margin: 20px auto; display: none;">
+                <p style="text-align: center; color: #e53e3e;">تعذّر تحميل تفاصيل الطلب.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/boot.js?v=20250608"></script>
+    <script src="js/config.js?v=20250608"></script>
+    <script src="js/api.js?v=20250608"></script>
+    <script src="js/auth.js?v=20250608"></script>
+    <script src="js/order-details.js?v=20250623"></script>
+</body>
+</html>

@@ -59,27 +59,45 @@
             <div class="hint">اختار طريقة الدفع وأكد الطلب.</div>
           </div>
 
-          <!-- تفاصيل البنك (مخفية) -->
-          <div id="bankDetails" class="bankDetails" hidden>
-            <h3 class="panel__title" style="font-size:16px; margin:0 0 10px;">بيانات البطاقة البنكية</h3>
+          <div id="cardDetails" class="bankDetails">
+            <h3 class="panel__title" style="font-size:16px; margin:0 0 10px;">بيانات البطاقة (محاكاة)</h3>
+            <p class="hint" style="margin:0 0 10px;font-size:12px;">للاختبار: 4242 4242 4242 4242 — أي تاريخ مستقبلي — CVV 123</p>
             <div class="field">
               <label>رقم البطاقة</label>
-              <input id="cardNumber" type="text" placeholder="مثال: 4111 1111 1111 1111" />
+              <input id="cardNumber" type="tel" inputmode="numeric" pattern="[0-9\s]{13,19}" placeholder="4242 4242 4242 4242" maxlength="19" />
             </div>
             <div class="field">
               <label>اسم صاحب البطاقة</label>
-              <input id="cardName" type="text" placeholder="مثال: ALI AHMAD" />
+              <input id="cardName" type="text" placeholder="ALI AHMAD" />
             </div>
             <div style="display:flex; gap:10px;">
               <div class="field" style="flex:1;">
                 <label>تاريخ الانتهاء</label>
-                <input id="cardExp" type="text" placeholder="MM/YY" />
+                <input id="cardExp" type="tel" inputmode="numeric" placeholder="12/28" maxlength="5" />
               </div>
               <div class="field" style="flex:1;">
                 <label>CVV</label>
-                <input id="cardCvv" type="password" placeholder="123" />
+                <input id="cardCvv" type="tel" inputmode="numeric" pattern="[0-9]{3,4}" placeholder="123" maxlength="4" />
               </div>
             </div>
+          </div>
+
+          <div id="walletDetails" class="bankDetails" hidden>
+            <h3 class="panel__title" style="font-size:16px; margin:0 0 10px;">محفظة إلكترونية (محاكاة)</h3>
+            <p class="hint" style="margin:0 0 10px;font-size:12px;">للاختبار: رقم 01xxxxxxxxx — OTP: 123456</p>
+            <div class="field">
+              <label>رقم المحفظة</label>
+              <input id="walletPhone" type="tel" inputmode="numeric" pattern="[0-9]{11}" placeholder="01012345678" maxlength="11" />
+            </div>
+            <div class="field">
+              <label>رمز التحقق OTP</label>
+              <input id="walletOtp" type="tel" inputmode="numeric" pattern="[0-9]{6}" placeholder="123456" maxlength="6" />
+            </div>
+          </div>
+
+          <div id="codDetails" class="bankDetails" hidden>
+            <h3 class="panel__title" style="font-size:16px; margin:0 0 10px;">الدفع عند الاستلام</h3>
+            <p class="hint" style="margin:0 0 10px;font-size:12px;">ادفع نقداً عند استلام الطلب من البائع</p>
           </div>
 
           <div id="checkoutMsg" class="checkout-msg" hidden></div>
@@ -96,14 +114,15 @@
       <div class="orderSuccessIcon">✅</div>
       <h2 class="orderSuccessTitle">تم تأكيد الطلب</h2>
       <p class="orderSuccessText">شكراً لثقتك! سيتم توجيهك للصفحة الرئيسية…</p>
+      <p id="orderTxId" style="font-size:13px;color:#666;margin-top:8px;"></p>
     </div>
   </div>
 
   <!-- ربط ملف الجافاسكريبت -->
-  <script src="js/boot.js?v=20250603d"></script>
-  <script src="js/config.js?v=20250603d"></script>
-  <script src="js/api.js?v=20250603d"></script>
-  <script src="js/auth.js?v=20250603d"></script>
-  <script src="js/checkout.js?v=20250603d"></script>
+  <script src="js/boot.js?v=20250608"></script>
+  <script src="js/config.js?v=20250608"></script>
+  <script src="js/api.js?v=20250608"></script>
+  <script src="js/auth.js?v=20250608"></script>
+  <script src="js/checkout.js?v=20250622"></script>
 </body>
 </html>

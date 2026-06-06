@@ -33,12 +33,12 @@
         <!-- منطقة المستخدم (تظهر بعد الدخول) -->
         <div id="userArea" class="user-area" hidden>
           <a href="#" id="dashboardLink" class="btn btn--primary" style="text-decoration:none;"></a>
-          <button class="btn btn--ghost user-name" id="btnUser" style="display:flex; align-items:center; gap:8px;">
+          <a href="profile.html" class="btn btn--ghost user-name" id="btnUser" style="display:flex; align-items:center; gap:8px; text-decoration:none;">
             <div class="user-avatar-wrap">
               <span id="userInitials" class="user-initials-circle"></span>
             </div>
             <span id="userDisplayName">مرحباً</span>
-          </button>
+          </a>
           <button class="btn btn--danger" id="btnLogout">خروج</button>
         </div>
 
@@ -60,7 +60,7 @@
           <h1 class="hero__title">سوق محاصيل <span>الزراعة العضوية</span></h1>
           <p class="hero__desc">اعيش أفضل محاصيل طازجة—اشترِ الآن وخليها توصل لباب بيتك.</p>
           <div class="hero__cta">
-            <button class="btn btn--ghost">عرض التفاصيل</button>
+            <button class="btn btn--ghost" onclick="document.getElementById('featuresSection').scrollIntoView({behavior: 'smooth'})">عرض التفاصيل</button>
             <button class="btn btn--primary" id="btnShopNow">تسوق المحاصيل</button>
           </div>
         </div>
@@ -233,9 +233,9 @@
   </div>
 </div>
 
-  <!-- نافذة السلة (مفصلة على الـ CSS بتاعك) -->
-  <div class="modal-backdrop" id="cartBackdrop" hidden></div>
-  <div class="cart-sidebar" id="cartModal" hidden>
+  <!-- نافذة السلة -->
+  <div class="modal-backdrop" id="cartBackdrop" style="display:none;"></div>
+  <div class="cart-sidebar" id="cartModal" style="display:none; flex-direction:column;">
     <div class="modal__header" style="background:#2f7d32; color:white;">
       <h3 style="margin:0;">سلة المشتريات</h3>
       <button class="icon-btn" id="btnCloseCart" style="color:white; border:none; background:none;">✖</button>
@@ -259,7 +259,7 @@
 
 
 
-   <section>
+   <section id="featuresSection">
     <div class="features">
         <p class="p1">لماذا تختار سوق زرعتك؟</p>
         <div class="features-contener">
@@ -360,10 +360,10 @@
 
 
 
-  <script src="js/boot.js?v=20250603d"></script>
-  <script src="js/config.js?v=20250603d"></script>
-  <script src="js/api.js?v=20250603d"></script>
-  <script src="js/auth.js?v=20250603d"></script>
-  <script src="js/script.js?v=20250603d"></script>
+  <script src="js/boot.js?v=20250608"></script>
+  <script src="js/config.js?v=20250608"></script>
+  <script src="js/api.js?v=20250608"></script>
+  <script src="js/auth.js?v=20250608"></script>
+  <script src="js/script.js?v=20250610"></script>
 </body>
 </html>

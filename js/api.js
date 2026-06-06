@@ -3,12 +3,40 @@
 const CART_KEY = "demo_cart";
 
 const CATEGORY_IMAGES = {
-  حبوب: "images/item1 (1).jpg",
-  خضروات: "images/item5.jpg",
-  فاكهة: "images/item4.jpg",
+  حبوب: ["images/item1 (1).jpg", "images/item6.jpg", "images/item10.jpg"],
+  خضروات: ["images/item5.jpg", "images/item3.jpg", "images/item11.jpg", "images/crop-info1.1.jpg"],
+  فاكهة: ["images/item4.jpg", "images/item7.jpg", "images/item8.jpg", "images/item12.jpg"],
 };
 
+const FALLBACK_IMAGES = [
+  "images/item2.jpg",
+  "images/item9.jpg",
+  "images/crop-cart1.png",
+  "images/item1 (1).jpg",
+  "images/item5.jpg",
+  "images/item4.jpg",
+];
+
 const DEFAULT_PRODUCT_IMG = "images/item2.jpg";
+
+function pickCategoryImage(category, id) {
+  const pool = CATEGORY_IMAGES[category] || FALLBACK_IMAGES;
+  const idx = Math.abs(Number(id) || 0) % pool.length;
+  return pool[idx] || DEFAULT_PRODUCT_IMG;
+}
+
+function productSellerLabel(raw) {
+  const role = String(pick(raw, "sellerRole", "SellerRole") || "").trim().toLowerCase();
+  const name = pick(raw, "sellerName", "SellerName") || "";
+  const farm = pick(raw, "farmName", "FarmName") || "";
+  if (role === "trader" || role === "تاجر") {
+    return name ? `التاجر: ${name}` : "";
+  }
+  const parts = [];
+  if (farm) parts.push(`المزرعة: ${farm}`);
+  if (name) parts.push(`المزارع: ${name}`);
+  return parts.join(" • ");
+}
 
 function getApiBase() {
   const raw = window.API_BASE_URL || "https://smartfarm.runasp.net";
@@ -33,8 +61,8 @@ function pick(obj, ...keys) {
 function mapApiProduct(p) {
   const pid = pick(p, "pid", "Pid") ?? 0;
   const category = pick(p, "category", "Category") || "خضروات";
-  const photoUrl = pick(p, "photoUrl", "PhotoUrl");
-  const img = photoUrl || CATEGORY_IMAGES[category] || DEFAULT_PRODUCT_IMG;
+  const photoUrl = pick(p, "photoUrl", "PhotoUrl", "img");
+  const img = photoUrl || pickCategoryImage(category, pid);
   const price = Number(pick(p, "price", "Price") ?? 0);
   const rating = pick(p, "rating", "Rating");
 
@@ -48,7 +76,19 @@ function mapApiProduct(p) {
     img,
     quantity: pick(p, "quantity", "Quantity"),
     uid: pick(p, "uid", "Uid"),
+    farmId: pick(p, "farmId", "FarmId"),
+    farmName: pick(p, "farmName", "FarmName"),
+    sellerName: pick(p, "sellerName", "SellerName"),
+    sellerRole: pick(p, "sellerRole", "SellerRole"),
+    sellerLabel: productSellerLabel(p),
   };
+}
+
+async function uploadProductPhoto(file) {
+  const form = new FormData();
+  form.append("image", file);
+  const res = await apiFetch("/api/product/photo", { method: "POST", body: form, headers: {} });
+  return pick(res, "photoUrl", "PhotoUrl") || null;
 }
 
 /**
@@ -121,8 +161,19 @@ async function apiFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };
   const needsAuth = options.auth !== false;
 
-  if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
-    headers["Content-Type"] = "application/json; charset=utf-8";
+  // Serialize body FIRST — then set headers based on what we actually have
+  let serializedBody = options.body;
+  if (
+    options.body != null &&
+    !(options.body instanceof FormData) &&
+    !(options.body instanceof Blob) &&
+    !(options.body instanceof ArrayBuffer) &&
+    typeof options.body !== "string"
+  ) {
+    serializedBody = JSON.stringify(options.body);
+    if (!headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
   }
 
   const token = getAuthToken();
@@ -137,14 +188,7 @@ async function apiFetch(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-    body:
-      options.body && headers["Content-Type"] === "application/json" && typeof options.body !== "string"
-        ? JSON.stringify(options.body)
-        : options.body,
-  });
+  const res = await fetch(url, { ...options, headers, body: serializedBody });
 
   const { ok, status, data } = await readResponse(res);
 
@@ -248,6 +292,9 @@ window.SmartFarmApi = {
   isLoggedIn,
   apiFetch,
   mapApiProduct,
+  productSellerLabel,
+  pickCategoryImage,
+  uploadProductPhoto,
   loadProducts,
   getProducts,
   getProductById,

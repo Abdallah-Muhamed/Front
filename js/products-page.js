@@ -331,12 +331,16 @@ function renderProducts() {
   pageItems.forEach((p) => {
     const card = document.createElement("div");
     card.className = "product-card";
+    const seller = p.sellerLabel
+      ? `<p class="product-card__seller" style="font-size:12px;color:#6b7280;margin:4px 0 8px;">${p.sellerLabel}</p>`
+      : "";
     card.innerHTML = `
       <div class="product-card__img">
-        <img alt="${p.name}" src="${p.img}">
+        <img alt="${p.name}" src="${p.img}" onerror="this.src='images/item2.jpg'">
       </div>
       <div class="product-card__body">
         <h3 class="product-card__title">${p.name}</h3>
+        ${seller}
         <div class="product-card__meta">
           <span class="price">${formatMoney(p.price)}</span>
           <span>⭐ ${p.rating ?? "غير مقيم"}</span>
