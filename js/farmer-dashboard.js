@@ -126,7 +126,7 @@ async function renderOrders() {
           ${contactInfo}
 
           ${!isBuyer && statusClassFinal === "order-status--pending" ? `
-            <button class="btn btn--primary" style="margin-top:15px; width:100%;" onclick="confirmOrder(${id})">تأكيد الطلب</button>
+            <button class="btn btn--primary" style="margin-top:15px; width:100%;" onclick="confirmOrder('${id}')">تأكيد الطلب</button>
           ` : ""}
           <button class="btn btn--ghost" style="margin-top:15px; width:100%;" onclick="window.location.href='order-details.html?id=${id}'">عرض التفاصيل</button>
         </div>
@@ -141,6 +141,11 @@ async function renderOrders() {
 }
 
 async function confirmOrder(orderId) {
+  if (!orderId || orderId === "—" || orderId === "undefined") {
+    alert("خطأ: رقم الطلب غير صحيح.");
+    return;
+  }
+
   if (!confirm("هل أنت متأكد من تأكيد هذا الطلب؟")) return;
 
   try {
@@ -151,10 +156,11 @@ async function confirmOrder(orderId) {
     alert("تم تأكيد الطلب بنجاح.");
     await renderOrders(); // Reload orders to reflect the status change
   } catch (e) {
-    console.error(e);
-    alert("تعذّر تأكيد الطلب.");
+    console.error("confirmOrder error:", e);
+    alert(e?.message || "تعذّر تأكيد الطلب.");
   }
 }
+
 window.confirmOrder = confirmOrder;
 
 function requireFarmer() {

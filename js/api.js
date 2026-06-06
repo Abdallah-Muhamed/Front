@@ -79,7 +79,7 @@ function availableUnits(product) {
 
 function isOwnProduct(product) {
   const currentUid = getCurrentUserId();
-  const sellerUid = normalizeNumber(pick(product, "uid", "Uid"), 0);
+  const sellerUid = normalizeNumber(pick(product, "Uid", "uid"), 0);
   return !!currentUid && !!sellerUid && currentUid === sellerUid;
 }
 
@@ -155,7 +155,7 @@ function mapApiProduct(p) {
     rating: rating != null ? Number(rating) : null,
     img,
     quantity: pick(p, "quantity", "Quantity"),
-    uid: pick(p, "uid", "Uid"),
+    uid: pick(p, "Uid", "uid"),
     farmId: pick(p, "farmId", "FarmId"),
     farmName: pick(p, "farmName", "FarmName"),
     sellerName: pick(p, "sellerName", "SellerName"),
@@ -273,6 +273,17 @@ async function apiFetch(path, options = {}) {
   const { ok, status, data } = await readResponse(res);
 
   if (!ok) {
+    if (status === 403) {
+      console.error("🔴 403 Forbidden — تفاصيل الخطأ:", {
+        url,
+        status,
+        data,
+        rawBody: JSON.stringify(data),
+        userRole: localStorage.getItem("userRole"),
+        userUid: localStorage.getItem("userUid"),
+        tokenPrefix: token ? token.substring(0, 40) + "..." : "NO TOKEN",
+      });
+    }
     const err = new Error(parseErrorMessage(data, res.statusText || "Request failed", status));
     err.status = status;
     err.data = data;
@@ -307,7 +318,8 @@ async function loadProducts(options = {}) {
     try {
       data = await fetchCatalog(false);
     } catch (e) {
-      if (e.status === 401 && isLoggedIn()) {
+      // السيرفر ممكن يرجع 401 أو 403 للطلبات بدون token — نجرب مع الـ token
+      if ((e.status === 401 || e.status === 403) && isLoggedIn()) {
         data = await fetchCatalog(true);
       } else {
         throw e;
@@ -322,6 +334,7 @@ async function loadProducts(options = {}) {
     return [];
   }
 }
+
 
 function getProducts() {
   return _products;
