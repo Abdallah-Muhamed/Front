@@ -100,7 +100,41 @@
     </div>
   </div>
 
+<!-- قسم الطلبات السابقة -->
+<div class="section-header" style="margin-top:25px;">
+  <h2>الطلبات السابقة</h2>
+</div>
 
+<div class="grid-cards" id="ordersGrid"></div>
+<!-- <h3 id="countCrops">0</h3>
+<h3 id="sumStock">0</h3> -->
+<p id="ordersEmpty" style="color:#888; margin-top:10px;" hidden>
+  لا توجد طلبات حتى الآن.
+</p>
+
+<!-- Confirm Delete Modal -->
+<div class="sf-modal" id="confirmModal">
+  <div class="sf-modal__box" style="width:min(520px, 100%);">
+    <div class="sf-modal__header">
+      <h3 id="confirmTitle">تأكيد العملية</h3>
+      <button type="button" class="sf-icon-btn" onclick="closeConfirm()">✖</button>
+    </div>
+
+    <div class="sf-modal__body">
+      <p id="confirmMessage" style="margin:0; color:#374151; line-height:1.7;">
+        هل أنت متأكد؟
+      </p>
+    </div>
+
+    <div class="sf-modal__footer">
+      <button type="button" class="sf-btn sf-btn--ghost" onclick="closeConfirm()">إلغاء</button>
+      <button type="button" class="sf-btn" id="confirmOkBtn"
+              style="background:#b91c1c; color:#fff;">
+        حذف
+      </button>
+    </div>
+  </div>
+</div>
 
 
 
