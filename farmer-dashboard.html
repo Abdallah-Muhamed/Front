@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -8,18 +7,28 @@
     <style>
         body { background: #f4f7f6; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        
-        
-        
-       
+        .modal-box label { display: block; margin: 8px 0 4px; font-size: 14px; color: #444; }
+        .modal-box select, .modal-box input, .modal-box textarea {
+            width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;
+        }
+        .field-hint { font-size: 12px; color: #718096; margin: -4px 0 8px; }
     </style>
 </head>
 <body>
 
     <header>
+<!-- <<<<<<< HEAD -->
+        <div class="container header-inner" style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 style="color: #2e7d32; margin:0;">سوق المزرعة — لوحة المزارع</h2>
+            <div style="display:flex;gap:8px;">
+                <button type="button" id="btnLogoutDash" class="btn btn--ghost">خروج</button>
+                <button type="button" onclick="window.location.href='index.html'" class="btn btn--ghost">← الرئيسية</button>
+            </div>
+<!-- ======= -->
         <div class="container header-inner">
         <div class="brand__icon"><a href="index.html"><img src="images/logo.png" alt="Logo" width="220" height="80" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<h2 style=\'color:#2f7d32;\'>سوق المزرعة</h2>');"></a></div>
             <button onclick="window.location.href='index.html'" style="padding:8px 15px; cursor:pointer; border:1px solid #ccc; background:white; border-radius:5px;display: inline-block; float: left;">>← العودة للرئيسية</button>
+<!-- >>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e -->
         </div>
     </header>
 
@@ -30,27 +39,98 @@
             <p style="color: #666; font-size: 14px;">حساب مزارع معتمد</p>
         </div>
 
-        <!-- الإحصائيات -->
         <div class="stats-grid">
             <div class="stat-card"><h3 id="countFarms">0</h3><p>مزارعي</p></div>
-            <div class="stat-card"><h3 id="countCrops">0</h3><p>محاصيلي بالأسواق</p></div>
+            <div class="stat-card"><h3 id="countFieldCrops">0</h3><p>محاصيل مزرعية</p></div>
+            <div class="stat-card"><h3 id="countMarket">0</h3><p>منتجات بالسوق</p></div>
         </div>
 
-        <!-- قسم المزارع -->
+        <!-- المزارع -->
         <div class="section-header">
             <h2>مزارعي</h2>
+<!-- <<<<<<< HEAD -->
+            <button type="button" class="btn-add" id="btnOpenFarmModal">+ إضافة مزرعة</button>
+<!-- ======= -->
             <button class="btn-add" onclick="openFarmModal()">+ إضافة مزرعة</button>
+<!-- >>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e -->
         </div>
         <div class="grid-cards" id="farmsGrid"></div>
 
-        <!-- قسم المحاصيل -->
+        <!-- محاصيل مزرعية (Crop) -->
         <div class="section-header">
+<!-- <<<<<<< HEAD -->
+            <h2>محاصيلي في المزارع</h2>
+            <button type="button" class="btn-add" id="btnOpenFieldCropModal">+ إضافة محصول مزرعي</button>
+<!-- ======= -->
             <h2>محاصيلي المعروضة للبيع</h2>
             <button class="btn-add" onclick="openCropModal()">+ إضافة محصول للسوق</button>
+<!-- >>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e -->
         </div>
-        <div class="grid-cards" id="cropsGrid"></div>
+        <p class="field-hint" style="margin-bottom:12px;">اختر نوع النبات من قاعدة البيانات واربطه بمزرعة مسجّلة.</p>
+        <div class="grid-cards" id="fieldCropsGrid"></div>
+
+        <!-- منتجات السوق (Product) -->
+        <div class="section-header">
+            <h2>منتجاتي المعروضة للبيع</h2>
+            <button type="button" class="btn-add" id="btnOpenMarketModal">+ عرض منتج في السوق</button>
+        </div>
+        <p class="field-hint" style="margin-bottom:12px;">انشر منتجاً للبيع — يُفضّل اختيار محصول مزرعي موجود.</p>
+        <div class="grid-cards" id="marketGrid"></div>
     </div>
 
+<!-- <<<<<<< HEAD -->
+    <!-- مزرعة -->
+    <div class="modal" id="farmModal" style="display:none;">
+        <div class="modal-box">
+            <button type="button" class="modal-close" data-close="farmModal">✖</button>
+            <h3 style="color:#2e7d32;">إضافة مزرعة</h3>
+            <div id="farmError" class="auth-error" hidden style="margin-bottom:10px;"></div>
+            <label>اسم المزرعة *</label>
+            <input type="text" id="farmName" placeholder="مثال: مزرعة الأمل">
+            <label>الموقع *</label>
+            <input type="text" id="farmLocation" placeholder="مثال: الشرقية - فاقوس">
+            <button type="button" class="btn-add" style="width:100%;" id="btnSaveFarm">حفظ المزرعة</button>
+        </div>
+    </div>
+
+    <!-- محصول مزرعي -->
+    <div class="modal" id="fieldCropModal" style="display:none;">
+        <div class="modal-box">
+            <button type="button" class="modal-close" data-close="fieldCropModal">✖</button>
+            <h3 style="color:#2e7d32;">إضافة محصول مزرعي</h3>
+            <label>المزرعة *</label>
+            <select id="fieldCropFarm"><option value="">— اختر مزرعة —</option></select>
+            <label>نوع النبات (من قاعدة البيانات) *</label>
+            <select id="fieldCropPlant"><option value="">— جاري التحميل —</option></select>
+            <label>مساحة (فدان / م²)</label>
+            <input type="number" id="fieldCropArea" min="0" step="0.01" placeholder="اختياري">
+            <label>تاريخ البدء</label>
+            <input type="date" id="fieldCropStart">
+            <label>ملاحظات</label>
+            <textarea id="fieldCropNotes" rows="2" placeholder="اختياري"></textarea>
+            <button type="button" class="btn-add" style="width:100%;" id="btnSaveFieldCrop">حفظ المحصول</button>
+        </div>
+    </div>
+
+    <!-- منتج سوق -->
+    <div class="modal" id="marketModal" style="display:none;">
+        <div class="modal-box">
+            <button type="button" class="modal-close" data-close="marketModal">✖</button>
+            <h3 style="color:#2e7d32;">عرض منتج في السوق</h3>
+            <label>محصول مزرعي (اختياري)</label>
+            <select id="marketCrop"><option value="">— بدون ربط / اسم يدوي —</option></select>
+            <label>اسم المنتج / الوصف *</label>
+            <input type="text" id="marketName" placeholder="يُملأ تلقائياً عند اختيار محصول">
+            <label>السعر (ج.م) *</label>
+            <input type="number" id="marketPrice" min="1" step="0.01">
+            <label>الكمية المتاحة *</label>
+            <input type="number" id="marketQty" min="1" value="10">
+            <label>التصنيف *</label>
+            <select id="marketCategory"><option value="">— اختر —</option></select>
+            <button type="button" class="btn-add" style="width:100%;" id="btnSaveMarket">نشر في السوق</button>
+        </div>
+    </div>
+<!-- ======= -->
     <!-- نافذة إضافة مزرعة -->
    <div class="sf-modal" id="farmModal">
   <div class="sf-modal__box">
@@ -146,7 +226,9 @@
   </div>
 </div>
     
+<!-- >>>>>>> 7fe2a4babbfc27167bdef014cd48499096e8595e -->
 
+<!-- <<<<<<< HEAD -->
 <!-- قسم الطلبات السابقة -->
 <div class="section-header" style="margin-top:25px;">
   <h2>الطلبات السابقة</h2>
@@ -211,5 +293,12 @@
     <script src="js/farmer-dashboard.js?v=20250603c"></script>
 
    
+=======
+    <script src="js/boot.js?v=20250603e"></script>
+    <script src="js/config.js?v=20250603e"></script>
+    <script src="js/api.js?v=20250603e"></script>
+    <script src="js/auth.js?v=20250603e"></script>
+    <script src="js/farmer-dashboard.js?v=20250603e"></script>
+>>>>>>> 4ae83340d03ac0c99b9198bf080e81d99b12d5d0
 </body>
 </html>

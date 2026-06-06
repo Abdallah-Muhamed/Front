@@ -10,7 +10,7 @@
  */
 (function () {
   /** Bump when JS changes — forces browsers to reload scripts (not HTML cache). */
-  window.APP_SCRIPT_VERSION = "20250603c";
+  window.APP_SCRIPT_VERSION = "20250603e";
 
   const PRODUCTION = "https://smartfarm.runasp.net";
   const PRODUCTION_SWAGGER = "https://smartfarm.runasp.net/swagger/index.html";
