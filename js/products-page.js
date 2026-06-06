@@ -92,11 +92,16 @@ function showAddedToast(text) {
 }
 
 function addToCartCore(productId) {
+  const p = byId.get(Number(productId));
   const cart = getCart();
+  const check = api().canAddProductToCart(p, Number(cart[productId] || 0));
+  if (!check.ok) {
+    showAddedToast(check.reason);
+    return;
+  }
   cart[productId] = (cart[productId] || 0) + 1;
   setCart(cart);
   updateCartBadge();
-  const p = byId.get(Number(productId));
   showAddedToast(p ? "تمت إضافة: " + p.name : "تمت الإضافة للسلة");
 }
 
@@ -105,6 +110,11 @@ function changeQtyCore(productId, delta) {
   const next = (cart[productId] || 0) + delta;
   if (next <= 0) delete cart[productId];
   else cart[productId] = next;
+  const p = byId.get(Number(productId));
+  if (p && cart[productId] && cart[productId] > api().availableUnits(p)) {
+    cart[productId] = api().availableUnits(p);
+    showAddedToast(`الكمية المتاحة ${cart[productId]} فقط.`);
+  }
   setCart(cart);
   updateCartBadge();
   renderCart();
@@ -133,6 +143,7 @@ function renderCart() {
     const pid = Number(pidStr);
     const p = byId.get(pid);
     if (!p) continue;
+    const stock = api().availableUnits(p);
 
     const row = document.createElement("div");
     row.className = "cart-item";
@@ -146,7 +157,7 @@ function renderCart() {
       <div class="qty-controls">
         <button class="qty-btn" data-minus="${pid}">-</button>
         <div class="qty">${qty}</div>
-        <button class="qty-btn" data-plus="${pid}">+</button>
+        <button class="qty-btn" data-plus="${pid}" ${qty >= stock ? "disabled" : ""}>+</button>
       </div>
     `;
     cartItems.appendChild(row);
@@ -331,6 +342,11 @@ function renderProducts() {
   pageItems.forEach((p) => {
     const card = document.createElement("div");
     card.className = "product-card";
+    const stock = api().availableUnits(p);
+    const ownProduct = api().isOwnProduct(p);
+    const disabled = stock <= 0 || ownProduct;
+    const stockText = stock > 0 ? `المتاح: ${stock}` : "غير متوفر";
+    const buttonText = ownProduct ? "منتجك" : stock <= 0 ? "غير متاح" : "أضف للسلة";
     const seller = p.sellerLabel
       ? `<p class="product-card__seller" style="font-size:12px;color:#6b7280;margin:4px 0 8px;">${p.sellerLabel}</p>`
       : "";
@@ -345,8 +361,9 @@ function renderProducts() {
           <span class="price">${formatMoney(p.price)}</span>
           <span>⭐ ${p.rating ?? "غير مقيم"}</span>
         </div>
+        <p class="product-card__stock ${stock <= 0 ? "is-empty" : ""}">${stockText}</p>
         <div class="product-card__actions">
-          <button class="add-btn" data-add="${p.id}">أضف للسلة</button>
+          <button class="add-btn" data-add="${p.id}" ${disabled ? "disabled" : ""}>${buttonText}</button>
         </div>
       </div>
     `;

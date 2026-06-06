@@ -86,6 +86,7 @@ function renderCart() {
     const qty = Number(cart[id] || 0);
     const p = byId[Number(id)];
     if (!p || qty <= 0) continue;
+    const stock = api().availableUnits(p);
 
     total += p.price * qty;
 
@@ -99,7 +100,7 @@ function renderCart() {
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-          <button onclick="changeQty(${p.id}, 1)" style="width:25px; height:25px; border:1px solid #ccc; cursor:pointer;">+</button>
+          <button onclick="changeQty(${p.id}, 1)" ${qty >= stock ? "disabled" : ""} style="width:25px; height:25px; border:1px solid #ccc; cursor:pointer;">+</button>
           <span>${qty}</span>
           <button onclick="changeQty(${p.id}, -1)" style="width:25px; height:25px; border:1px solid #ccc; cursor:pointer;">-</button>
         </div>
@@ -115,6 +116,11 @@ function changeQty(productId, delta) {
   const next = (cart[productId] || 0) + delta;
   if (next <= 0) delete cart[productId];
   else cart[productId] = next;
+  const p = byId[Number(productId)];
+  if (p && cart[productId] && cart[productId] > api().availableUnits(p)) {
+    cart[productId] = api().availableUnits(p);
+    showToast(`الكمية المتاحة ${cart[productId]} فقط.`);
+  }
   setCart(cart);
   updateCartBadge();
   renderCart();
@@ -135,11 +141,16 @@ function addToCartCore(productId) {
   }
 
   const cart = getCart();
+  const p = byId[Number(productId)];
+  const check = api().canAddProductToCart(p, Number(cart[productId] || 0));
+  if (!check.ok) {
+    showToast(check.reason);
+    return;
+  }
   cart[productId] = (cart[productId] || 0) + 1;
   setCart(cart);
   updateCartBadge();
 
-  const p = byId[Number(productId)];
   showToast(p ? `تم إضافة ${p.name} للسلة!` : "تمت الإضافة للسلة!");
 }
 window.addToCartCore = addToCartCore;
@@ -158,6 +169,11 @@ function renderProducts(list) {
   for (const p of list) {
     const card = document.createElement("div");
     card.className = "product-card";
+    const stock = api().availableUnits(p);
+    const ownProduct = api().isOwnProduct(p);
+    const disabled = stock <= 0 || ownProduct;
+    const stockText = stock > 0 ? `المتاح: ${stock}` : "غير متوفر";
+    const buttonText = ownProduct ? "منتجك" : stock <= 0 ? "غير متاح" : "أضف للسلة";
     const seller = p.sellerLabel
       ? `<p class="product-card__seller" style="font-size:12px;color:#6b7280;margin:4px 0 8px;">${p.sellerLabel}</p>`
       : "";
@@ -167,8 +183,9 @@ function renderProducts(list) {
         <h3 class="product-card__title">${p.name}</h3>
         ${seller}
         <div class="product-card__meta"><span class="price">${money(p.price)}</span></div>
+        <p class="product-card__stock ${stock <= 0 ? "is-empty" : ""}">${stockText}</p>
         <div class="product-card__actions">
-          <button class="add-btn" onclick="addToCartCore(${p.id})">أضف للسلة 🛒</button>
+          <button class="add-btn" onclick="addToCartCore(${p.id})" ${disabled ? "disabled" : ""}>${buttonText}</button>
         </div>
       </div>`;
     grid.appendChild(card);

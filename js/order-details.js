@@ -34,6 +34,10 @@ async function fetchOrderById(orderId) {
 }
 
 function statusInfo(rawStatus) {
+  if (api()?.orderStatusInfo) {
+    const info = api().orderStatusInfo(rawStatus);
+    return { statusClass: info.className, statusText: info.text };
+  }
   const statusRaw = String(rawStatus || "pending").toLowerCase();
   const statusClass =
     statusRaw.includes("accept") ? "order-status--accepted" :
@@ -101,7 +105,7 @@ async function renderOrderDetails() {
   const buyerPhone = pick(order, "BuyerPhone", "buyerPhone", "buyer_phone");
   const buyerAddress = pick(order, "BuyerAddress", "buyerAddress", "buyer_address");
   const buyerCity = pick(order, "BuyerCity", "buyerCity", "buyer_city");
-  const paymentMethod = pick(order, "Payment_method", "payment_method", "paymentMethod");
+  const paymentMethod = api().paymentMethodLabel(pick(order, "Payment_method", "payment_method", "paymentMethod"));
   const promoCode = pick(order, "Promo_code", "promo_code", "promoCode");
   const discount = pick(order, "Discount_amount", "discount_amount", "discountAmount");
   const notes = pick(order, "Order_notes", "order_notes", "orderNotes");

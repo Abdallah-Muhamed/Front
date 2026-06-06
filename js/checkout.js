@@ -91,6 +91,21 @@ function renderCheckout() {
   if (!checkoutItems || !checkoutEmpty || !btnConfirmOrder) return;
 
   const cart = getCart();
+  let changedCart = false;
+  for (const [pidStr, qty] of Object.entries(cart)) {
+    const p = byId.get(Number(pidStr));
+    if (!p || api().isOwnProduct(p) || api().availableUnits(p) <= 0) {
+      delete cart[pidStr];
+      changedCart = true;
+      continue;
+    }
+    const stock = api().availableUnits(p);
+    if (Number(qty) > stock) {
+      cart[pidStr] = stock;
+      changedCart = true;
+    }
+  }
+  if (changedCart) setCart(cart);
   const totalQty = cartCount(cart);
   const total = cartTotal(cart);
 
@@ -111,6 +126,7 @@ function renderCheckout() {
     const pid = Number(pidStr);
     const p = byId.get(pid);
     if (!p) continue;
+    const stock = api().availableUnits(p);
 
     const row = document.createElement("div");
     row.className = "checkout-item";
@@ -124,7 +140,7 @@ function renderCheckout() {
       <div class="checkout-qty">
         <button class="qty-btn" data-minus="${pid}">-</button>
         <div class="qty">${qty}</div>
-        <button class="qty-btn" data-plus="${pid}">+</button>
+        <button class="qty-btn" data-plus="${pid}" ${qty >= stock ? "disabled" : ""}>+</button>
       </div>
     `;
     checkoutItems.appendChild(row);
@@ -146,6 +162,12 @@ function renderCheckout() {
     btn.addEventListener("click", () => {
       const id = Number(btn.dataset.plus);
       const cart2 = getCart();
+      const p = byId.get(id);
+      const check = api().canAddProductToCart(p, Number(cart2[id] || 0));
+      if (!check.ok) {
+        if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = check.reason; }
+        return;
+      }
       cart2[id] = (cart2[id] || 0) + 1;
       setCart(cart2);
       renderCheckout();
@@ -203,6 +225,15 @@ btnConfirmOrder?.addEventListener("click", async () => {
     const pid = Number(pidStr);
     const p = byId.get(pid);
     if (!p || !qty) continue;
+    if (api().isOwnProduct(p)) {
+      if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = "لا يمكنك شراء منتجك الخاص."; }
+      return;
+    }
+    const stock = api().availableUnits(p);
+    if (stock <= 0 || Number(qty) > stock) {
+      if (checkoutMsg) { checkoutMsg.hidden = false; checkoutMsg.textContent = `الكمية المتاحة من ${p.name} هي ${stock}.`; }
+      return;
+    }
     items.push({
       status: "pending",
       order_date: orderDate,
@@ -234,7 +265,7 @@ btnConfirmOrder?.addEventListener("click", async () => {
       method: "POST",
       body: {
         items,
-        payment_method: payment === "card" ? `card:${txId}` : payment === "wallet" ? `wallet:${txId}` : `cod:${txId}`,
+        payment_method: api().normalizePaymentMethodForApi(payment),
         order_notes: notes || null,
       },
     });

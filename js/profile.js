@@ -8,6 +8,25 @@ let originalData = null;
 
 const $ = (sel) => document.querySelector(sel);
 
+function pick(obj, ...keys) {
+  return api().pick ? api().pick(obj, ...keys) : keys.map((k) => obj?.[k]).find((v) => v !== undefined && v !== null && v !== "");
+}
+
+function normalizeUser(data) {
+  return {
+    firstName: pick(data, "first_name", "First_name", "FirstName") || "",
+    lastName: pick(data, "last_name", "Last_name", "LastName") || "",
+    email: pick(data, "email", "Email") || "",
+    photoUrl: pick(data, "photoUrl", "PhotoUrl", "photo_url", "Photo_url") || "",
+    phones: pick(data, "phones", "Phones") || [],
+    city: pick(data, "city_name", "City_name", "cityName", "CityName") || "",
+    address: pick(data, "address_line", "Address_line", "addressLine", "AddressLine") || "",
+    latitude: pick(data, "latitude", "Latitude"),
+    longitude: pick(data, "longitude", "Longitude"),
+    role: pick(data, "role", "Role") || localStorage.getItem("userRole") || "",
+  };
+}
+
 function requireLogin() {
   if (api().isLoggedIn()) return true;
   alert("يجب تسجيل الدخول للوصول إلى الملف الشخصي.");
@@ -29,12 +48,13 @@ async function loadUserProfile() {
 
 function renderProfile(data) {
   if (!data) return;
+  const user = normalizeUser(data);
 
   // Profile photo (edit mode)
   const avatarPreview = $("#avatarPreview");
   if (avatarPreview) {
-    if (data.PhotoUrl) {
-      avatarPreview.innerHTML = `<img src="${data.PhotoUrl}" alt="صورة البروفايل" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    if (user.photoUrl) {
+      avatarPreview.innerHTML = `<img src="${user.photoUrl}" alt="صورة البروفايل" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       $("#deletePhotoBtn").hidden = false;
     } else {
       avatarPreview.innerHTML = '<span class="avatar-placeholder">📷</span>';
@@ -45,38 +65,38 @@ function renderProfile(data) {
   // Profile photo (view mode)
   const viewAvatar = $("#viewAvatar");
   if (viewAvatar) {
-    if (data.PhotoUrl) {
-      viewAvatar.innerHTML = `<img src="${data.PhotoUrl}" alt="صورة البروفايل" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    if (user.photoUrl) {
+      viewAvatar.innerHTML = `<img src="${user.photoUrl}" alt="صورة البروفايل" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
     } else {
       viewAvatar.innerHTML = "👤";
     }
   }
 
   // View mode data
-  const fullName = `${data.First_name || ""} ${data.Last_name || ""}`.trim();
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
   if ($("#viewName")) $("#viewName").textContent = fullName || "مستخدم";
-  if ($("#viewEmail")) $("#viewEmail").textContent = data.Email || "";
-  if ($("#viewPhones")) $("#viewPhones").textContent = (data.Phones || []).join(", ") || "غير متوفر";
-  if ($("#viewPhones")) $("#viewPhones").classList.toggle("empty", !(data.Phones && data.Phones.length > 0));
-  if ($("#viewCity")) $("#viewCity").textContent = data.City_name || "غير متوفر";
-  if ($("#viewCity")) $("#viewCity").classList.toggle("empty", !data.City_name);
-  if ($("#viewAddress")) $("#viewAddress").textContent = data.Address_line || "غير متوفر";
-  if ($("#viewAddress")) $("#viewAddress").classList.toggle("empty", !data.Address_line);
+  if ($("#viewEmail")) $("#viewEmail").textContent = user.email;
+  if ($("#viewPhones")) $("#viewPhones").textContent = user.phones.join(", ") || "غير متوفر";
+  if ($("#viewPhones")) $("#viewPhones").classList.toggle("empty", !user.phones.length);
+  if ($("#viewCity")) $("#viewCity").textContent = user.city || "غير متوفر";
+  if ($("#viewCity")) $("#viewCity").classList.toggle("empty", !user.city);
+  if ($("#viewAddress")) $("#viewAddress").textContent = user.address || "غير متوفر";
+  if ($("#viewAddress")) $("#viewAddress").classList.toggle("empty", !user.address);
 
   // Edit mode data
-  if ($("#firstName")) $("#firstName").value = data.First_name || "";
-  if ($("#lastName")) $("#lastName").value = data.Last_name || "";
-  if ($("#email")) $("#email").value = data.Email || "";
+  if ($("#firstName")) $("#firstName").value = user.firstName;
+  if ($("#lastName")) $("#lastName").value = user.lastName;
+  if ($("#email")) $("#email").value = user.email;
 
   // Location
-  userLat = data.Latitude;
-  userLng = data.Longitude;
+  userLat = user.latitude;
+  userLng = user.longitude;
   
-  if ($("#cityName")) $("#cityName").value = data.City_name || "";
-  if ($("#addressLine")) $("#addressLine").value = data.Address_line || "";
+  if ($("#cityName")) $("#cityName").value = user.city;
+  if ($("#addressLine")) $("#addressLine").value = user.address;
 
   // Phone numbers
-  renderPhones(data.Phones || []);
+  renderPhones(user.phones);
 
   // Show view mode by default
   $("#profileLoading").hidden = true;
@@ -177,11 +197,13 @@ async function uploadPhoto(file) {
       isFormData: true
     });
 
-    if (result.photoUrl) {
+    const photoUrl = pick(result, "photoUrl", "PhotoUrl", "photo_url", "url");
+    if (photoUrl) {
       const avatarPreview = $("#avatarPreview");
       if (avatarPreview) {
-        avatarPreview.innerHTML = `<img src="${result.photoUrl}" alt="صورة البروفايل" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+        avatarPreview.innerHTML = `<img src="${photoUrl}" alt="صورة البروفايل" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
       }
+      localStorage.setItem("userPhoto", photoUrl);
       $("#deletePhotoBtn").hidden = false;
     }
   } catch (e) {
@@ -246,16 +268,20 @@ async function saveProfile(e) {
     await api().apiFetch("/api/user/me", {
       method: "PUT",
       body: {
-        First_name: firstName,
-        Last_name: lastName,
-        Email: email,
-        City_name: cityName,
-        Address_line: addressLine,
-        Latitude: userLat,
-        Longitude: userLng,
-        Phones: phones
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        city_name: cityName,
+        address_line: addressLine,
+        latitude: userLat,
+        longitude: userLng,
+        role: localStorage.getItem("userRole") || undefined,
+        phones
       }
     });
+
+    localStorage.setItem("userName", `${firstName} ${lastName}`.trim());
+    localStorage.setItem("userFirstName", firstName);
 
     if (messageEl) {
       messageEl.style.background = "#dcfce7";

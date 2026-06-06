@@ -34,6 +34,44 @@
             color: #9ca3af;
             font-style: italic;
         }
+        #viewMode.active,
+        #editMode.active {
+            animation: profileFade .18s ease-out;
+        }
+        #viewMode .info-card {
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(17, 24, 39, .06);
+        }
+        #viewAvatar,
+        #avatarPreview {
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(47, 125, 50, .16);
+        }
+        #editProfileForm label {
+            margin-top: 10px;
+            font-weight: 800;
+            color: #374151;
+        }
+        #phonesContainer > div {
+            align-items: center;
+        }
+        @keyframes profileFade {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 640px) {
+            .card[style*="max-width"] {
+                padding: 14px !important;
+            }
+            #editProfileForm > div[style*="display:flex"] {
+                flex-direction: column;
+            }
+            #phonesContainer > div {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
     </style>
 </head>
 <body>

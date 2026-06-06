@@ -46,7 +46,7 @@ async function renderOrders() {
     if (empty) empty.hidden = true;
 
     // Get current user's uid from localStorage
-    const currentUid = parseInt(localStorage.getItem("uid") || "0");
+    const currentUid = api().getCurrentUserId();
 
     grid.innerHTML = orders.map(o => {
       const id = o.Oid ?? o.id ?? o.Id ?? o.orderId ?? o.oid ?? "—";
@@ -72,7 +72,11 @@ async function renderOrders() {
       // If orderUid matches currentUid, user is buyer -> show seller info
       // Otherwise, user is seller -> show buyer info
       // Inverted logic based on user feedback
-      const isBuyer = orderUid !== currentUid;
+      const isBuyer = api().isOrderBuyer(o);
+      const relationTitle = isBuyer ? "طلباتي" : "مطلوب مني";
+      const normalizedStatus = api().orderStatusInfo(statusRaw);
+      const statusClassFinal = normalizedStatus.className;
+      const statusTextFinal = normalizedStatus.text;
 
       const sellerPhone = o.SellerPhone || o.sellerPhone || "";
       const sellerAddress = o.SellerAddress || o.sellerAddress || "";
@@ -110,8 +114,9 @@ async function renderOrders() {
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
             <h3 style="margin:0; color:#1a365d;">طلب #${id}</h3>
-            <span class="order-status ${statusClass}">${statusText}</span>
+            <span class="order-status ${statusClassFinal}">${statusTextFinal}</span>
           </div>
+          <p class="order-relation">${relationTitle}</p>
 
           <p style="margin:8px 0; color:#666; font-size:14px;">📅 التاريخ: ${date}</p>
           <p style="margin:10px 0 0; color:#2e7d32; font-weight:bold;">
@@ -120,7 +125,7 @@ async function renderOrders() {
 
           ${contactInfo}
 
-          ${!isBuyer && statusClass === "order-status--pending" ? `
+          ${!isBuyer && statusClassFinal === "order-status--pending" ? `
             <button class="btn btn--primary" style="margin-top:15px; width:100%;" onclick="confirmOrder(${id})">تأكيد الطلب</button>
           ` : ""}
           <button class="btn btn--ghost" style="margin-top:15px; width:100%;" onclick="window.location.href='order-details.html?id=${id}'">عرض التفاصيل</button>
@@ -139,17 +144,18 @@ async function confirmOrder(orderId) {
   if (!confirm("هل أنت متأكد من تأكيد هذا الطلب؟")) return;
 
   try {
-    await api().apiFetch(`/api/order/${orderId}`, {
+    await api().apiFetch(`/api/Order/${orderId}`, {
       method: "PUT",
       body: { status: "accepted" }
     });
     alert("تم تأكيد الطلب بنجاح.");
-    loadOrders(); // Reload orders to reflect the status change
+    await renderOrders(); // Reload orders to reflect the status change
   } catch (e) {
     console.error(e);
     alert("تعذّر تأكيد الطلب.");
   }
 }
+window.confirmOrder = confirmOrder;
 
 function requireFarmer() {
   const token = api()?.getAuthToken?.();

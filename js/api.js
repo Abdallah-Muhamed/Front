@@ -58,6 +58,86 @@ function pick(obj, ...keys) {
   return undefined;
 }
 
+function getCurrentUserId() {
+  const raw =
+    localStorage.getItem("userUid") ||
+    localStorage.getItem("uid") ||
+    localStorage.getItem("Uid") ||
+    "";
+  const id = Number(raw);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+function normalizeNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function availableUnits(product) {
+  return Math.max(0, normalizeNumber(pick(product, "quantity", "Quantity"), 0));
+}
+
+function isOwnProduct(product) {
+  const currentUid = getCurrentUserId();
+  const sellerUid = normalizeNumber(pick(product, "uid", "Uid"), 0);
+  return !!currentUid && !!sellerUid && currentUid === sellerUid;
+}
+
+function canAddProductToCart(product, currentQty = 0) {
+  if (!product) return { ok: false, reason: "هذا المنتج غير متوفر." };
+  if (isOwnProduct(product)) return { ok: false, reason: "لا يمكنك شراء منتجك الخاص." };
+  const stock = availableUnits(product);
+  if (stock <= 0) return { ok: false, reason: "هذا المنتج غير متوفر حاليا." };
+  if (normalizeNumber(currentQty, 0) + 1 > stock) {
+    return { ok: false, reason: `الكمية المتاحة ${stock} فقط.` };
+  }
+  return { ok: true, stock };
+}
+
+function normalizePaymentMethodForApi(method) {
+  const raw = String(method || "").trim().toLowerCase();
+  if (raw.startsWith("card")) return "card";
+  if (raw.startsWith("wallet")) return "wallet";
+  if (raw.startsWith("cod") || raw.includes("cash")) return "cod";
+  return raw || "cod";
+}
+
+function paymentMethodLabel(method) {
+  const normalized = normalizePaymentMethodForApi(method);
+  if (normalized === "card") return "بطاقة بنكية";
+  if (normalized === "wallet") return "محفظة إلكترونية";
+  if (normalized === "cod") return "الدفع عند الاستلام";
+  return method || "غير متوفر";
+}
+
+function orderStatusInfo(rawStatus) {
+  const statusRaw = String(rawStatus || "pending").toLowerCase();
+  const isAccepted = statusRaw.includes("accept") || statusRaw.includes("approve");
+  const isRejected = statusRaw.includes("reject");
+  const isDone = statusRaw.includes("done") || statusRaw.includes("deliver") || statusRaw.includes("complete");
+  const statusClass = isAccepted
+    ? "order-status--accepted"
+    : isRejected
+      ? "order-status--rejected"
+      : isDone
+        ? "order-status--done"
+        : "order-status--pending";
+  const text = isAccepted
+    ? "تمت الموافقة"
+    : isRejected
+      ? "مرفوض"
+      : isDone
+        ? "مكتمل"
+        : "قيد المراجعة";
+  return { className: statusClass, text, raw: statusRaw };
+}
+
+function isOrderBuyer(order) {
+  const currentUid = getCurrentUserId();
+  const orderUid = normalizeNumber(pick(order, "Uid", "uid", "buyerUid", "BuyerUid", "userId", "UserId"), 0);
+  return !!currentUid && !!orderUid && currentUid === orderUid;
+}
+
 function mapApiProduct(p) {
   const pid = pick(p, "pid", "Pid") ?? 0;
   const category = pick(p, "category", "Category") || "خضروات";
@@ -294,6 +374,15 @@ window.SmartFarmApi = {
   mapApiProduct,
   productSellerLabel,
   pickCategoryImage,
+  pick,
+  getCurrentUserId,
+  availableUnits,
+  isOwnProduct,
+  canAddProductToCart,
+  normalizePaymentMethodForApi,
+  paymentMethodLabel,
+  orderStatusInfo,
+  isOrderBuyer,
   uploadProductPhoto,
   loadProducts,
   getProducts,
