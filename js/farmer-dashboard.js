@@ -553,7 +553,6 @@ async function saveFarm() {
       },
     });
     closeFarmModal();
-    // Reset form + map state
     document.getElementById("farmName").value = "";
     document.getElementById("farmLocation").value = "";
     document.getElementById("farmArea").value = "";
@@ -643,17 +642,53 @@ async function saveMarketProduct() {
 }
 
 async function deleteFarm(farmId) {
-  const ok = await confirmAction({ title: "حذف المزرعة", message: "هل تريد حذف هذه المزرعة؟ (يجب ألا تحتوي على محاصيل)" });
+  const ok = await confirmAction({
+    title: "حذف المزرعة",
+    message: "هل تريد حذف هذه المزرعة؟ (يجب ألا تحتوي على محاصيل)",
+    okText: "حذف"
+  });
   if (!ok) return;
+
   try {
     console.log("Deleting farm:", farmId);
+
     await api().apiFetch(`/api/farm/${farmId}`, { method: "DELETE" });
+
     await renderFarms();
-    await renderFieldCrops();
-  } catch (e) {
-    console.error("Delete farm error:", e);
-    alert(e?.message || "تعذر حذف المزرعة — قد تحتوي على محاصيل.");
-  }
+
+    const stillExists = (myFarmsCache || []).some(f => {
+      const id = f.farmId ?? f.FarmId ?? f.id ?? f.Id;
+      return String(id) === String(farmId);
+    });
+
+    if (stillExists) {
+      alert("لم يتم حذف المزرعة. غالبًا تحتوي على محاصيل مرتبطة بها.");
+      return;
+    }
+
+    if (typeof renderFieldCrops === "function") {
+      await renderFieldCrops();
+    }
+
+ } catch (e) {
+  console.error("Delete farm error:", e);
+
+  const rawMsg =
+    e?.data?.message ||
+    e?.data?.title ||
+    e?.message ||
+    "";
+
+  const arMsg = rawMsg.includes("Cannot delete a farm that still owns crops")
+    ? "لا يمكن حذف المزرعة لأنها تحتوي على محاصيل. احذف/انقل المحاصيل أولاً ثم حاول مرة أخرى."
+    : (rawMsg || "تعذر حذف المزرعة — قد تحتوي على محاصيل.");
+
+  await alertAction({
+    title: "تعذر حذف المزرعة",
+    message: arMsg,
+    okText: "حسنًا"
+  });
+}
 }
 
 async function deleteFieldCrop(cid) {
@@ -733,3 +768,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderFieldCrops();
   await renderMarketProducts();
 });
+
+
+
+function alertAction({ title = "تنبيه", message = "حدث خطأ", okText = "حسنًا" } = {}) {
+  const modal = document.getElementById("confirmModal");
+  const okBtn = document.getElementById("confirmOkBtn");
+  const cancelBtn = document.getElementById("confirmCancelBtn");
+
+  if (!modal || !okBtn) {
+    alert(message);
+    return Promise.resolve(true);
+  }
+
+  if (cancelBtn) cancelBtn.style.display = "none";
+
+  openConfirm({ title, message, okText });
+
+  return new Promise((resolve) => {
+    const old = document.getElementById("confirmOkBtn");
+    const clone = old.cloneNode(true);
+    old.replaceWith(clone);
+
+    clone.addEventListener("click", () => {
+      closeConfirm();
+      if (cancelBtn) cancelBtn.style.display = ""; 
+      resolve(true);
+    });
+  });
+}
+
+window.alertAction = alertAction;

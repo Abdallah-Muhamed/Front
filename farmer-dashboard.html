@@ -48,7 +48,7 @@
             <h2 style="color:#2e7d32;margin:0;">سوق المزرعة — لوحة المزارع</h2>
             <div style="display:flex;gap:8px;">
                 <a href="profile.html" class="btn btn--ghost" style="text-decoration:none;">الملف الشخصي</a>
-                <button type="button" id="btnLogoutDash" class="btn btn--ghost">خروج</button>
+                <!-- <button type="button" id="btnLogoutDash" class="btn btn--ghost">خروج</button> -->
                 <button type="button" onclick="window.location.href='index.html'" class="btn btn--ghost">← الرئيسية</button>
             </div>
         </div>
@@ -248,7 +248,7 @@
                 <p id="confirmMessage" style="margin:0;color:#374151;line-height:1.7;">هل أنت متأكد؟</p>
             </div>
             <div class="sf-modal__footer">
-                <button type="button" class="sf-btn sf-btn--ghost" onclick="closeConfirm()">إلغاء</button>
+                <button type="button" class="sf-btn sf-btn--ghost" id="confirmCancelBtn" onclick="closeConfirm()">إلغاء</button>
                 <button type="button" class="sf-btn" id="confirmOkBtn" style="background:#b91c1c;color:#fff;">حذف</button>
             </div>
         </div>
