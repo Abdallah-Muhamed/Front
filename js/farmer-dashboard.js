@@ -642,15 +642,11 @@ async function saveMarketProduct() {
 }
 
 async function deleteFarm(farmId) {
-<<<<<<< HEAD
-  const ok = await confirmAction({ title: "حذف المزرعة", message: "هل تريد حذف هذه المزرعة؟ (يجب ألا تحتوي على محاصيل - المنتجات سيتم فك ربطها)" });
-=======
   const ok = await confirmAction({
     title: "حذف المزرعة",
-    message: "هل تريد حذف هذه المزرعة؟ (يجب ألا تحتوي على محاصيل)",
+    message: "هل تريد حذف هذه المزرعة؟ (يجب ألا تحتوي على محاصيل - المنتجات سيتم فك ربطها)",
     okText: "حذف"
   });
->>>>>>> 1ae01cc90b4045e24f2256d6fa89cbe6c9e3b10d
   if (!ok) return;
 
   try {
